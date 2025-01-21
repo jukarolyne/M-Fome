@@ -1,0 +1,379 @@
+<Gerenciador>:
+    Menu:
+        name: 'menu'
+    Cadastro:
+        name: 'cadastro'
+    CadastroTurmas:
+        name: 'cadastroTurmas'
+    CadastroAlunos:
+        name: 'cadastroAlunos'
+    CadastroOrdem:
+        name: 'cadastroOrdem'
+    RegistroDia:
+        name: 'registroDia'
+    Relatorio:
+        name: 'relatorio'
+
+<Menu>:
+    BoxLayout:
+        orientation:'vertical'
+        padding: 140
+        spacing: 10
+        canvas:
+            Color:
+                rgba: [0.7,0.4,0.6,1]
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        
+        Button:
+            text: 'Cadastro'
+            on_release: app.root.current = 'cadastro'
+
+        Button:
+            text: 'Registro do Dia'
+            on_release: app.root.current = 'registroDia'
+        
+        Button:
+            text: 'Relatório Semanal'
+            on_release: app.root.current = 'relatorio'
+
+<Cadastro>:
+    BoxLayout:
+        orientation:'vertical'
+        ActionBar:
+            ActionView:
+                ActionPrevious:
+                    title: 'MóFome - Cadastro'
+                    on_release: app.root.current = 'menu'
+                ActionButton:
+                    text: 'Sair'
+                    on_release: app.stop()
+
+        BoxLayout:
+            orientation:'vertical'
+            padding: 140
+            spacing: 10
+            canvas:
+                Color:
+                    rgba: [0.7,0.4,0.6,1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            
+            Button:
+                text: 'Cadastrar Turmas'
+                on_release: app.root.current = 'cadastroTurmas'
+            
+            Button:
+                text: 'Cadastrar Alunos'
+                on_release: app.root.current = 'cadastroAlunos'
+
+            Button:
+                text: 'Cadastrar Ordem de almoço'
+                on_release: app.root.current = 'cadastroOrdem'
+
+<CadastroTurmas>
+    BoxLayout:
+        orientation:'vertical'
+        ActionBar:
+            ActionView:
+                ActionPrevious:
+                    title: 'MóFome - Cadastro de Turmas'
+                    on_release: app.root.current = 'cadastro'
+                ActionButton:
+                    text: 'Sair'
+                    on_release: app.stop()
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 100
+            spacing: 10
+            canvas:
+                Color:
+                    rgba: [0.7,0.4,0.6,1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+            Label:
+                text: 'Nome da Turma'
+            TextInput:
+                id: nomeTurma
+                multiline: False
+
+            Label:
+                text:'Matrícula'
+            TextInput:
+                id: matriculaTurma
+                multiline: False
+                
+            Button:
+                text:'SALVAR'
+                on_release: root.salvar_dadosTurma(nomeTurma.text, matriculaTurma.text)
+
+<CadastroAlunos>:
+    BoxLayout:
+        orientation:'vertical'
+        ActionBar:
+            ActionView:
+                ActionPrevious:
+                    title: 'MóFome - Cadastro de Alunos'
+                    on_release: app.root.current = 'cadastro'
+                ActionButton:
+                    text: 'Sair'
+                    on_release: app.stop()
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 50
+            spacing: 10
+            canvas:
+                Color:
+                    rgba: [0.7,0.4,0.6,1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+            Label:
+                text: 'Nome do Aluno'
+            TextInput:
+                id: nomeAluno
+
+            Label:
+                text: 'Turma'
+            Spinner:
+                id: spTurma
+                size_hint: None, None
+                size: 200, 50
+                pos_hint: {'center_x': 0.5}
+                text: 'Escolha turma'
+                values: 'selecionar'
+
+            Label:
+                text:'Matrícula'
+            TextInput:
+                id: matriculaAluno
+
+            Label:
+                text: 'Sexo'
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: 5
+                CheckBox:
+                    id: chkMasc
+                    group: 'sexo'
+                    pos_hint: {'x': 0.4, 'y': 0.5}
+                    size_hint: [0.2, 0.08]
+                    color: 'black'
+                Label:
+                    text:'Masculino'
+            BoxLayout:
+                orientation:'horizontal'
+                spacing: 5
+                CheckBox:
+                    id: chkFem
+                    group: 'sexo'
+                    pos_hint: {'x': 0.1, 'y': 0.5}
+                    size_hint: [0.2, 0.08]
+                    color: 'black'
+                Label:
+                    text: 'Feminino'
+
+            Label:
+                text: 'Monitor'
+            BoxLayout:
+                orientation: 'horizontal'
+                spacing: 5
+                CheckBox:
+                    id: chkSim
+                    group: 'monitor'
+                    pos_hint: {'x': 0.4, 'y': 0.5}
+                    size_hint: [0.2, 0.08]
+                    color: 'black'
+                Label:
+                    text:'SIM'
+            BoxLayout:
+                orientation:'horizontal'
+                spacing: 5
+                CheckBox:
+                    id: chkNao
+                    group: 'monitor'
+                    pos_hint: {'x': 0.1, 'y': 0.5}
+                    size_hint: [0.2, 0.08]
+                    color: 'black'
+                Label:
+                    text: 'NÃO'           
+
+            Button:
+                height: 100
+                width: 100
+                text:'SALVAR'
+                on_release: root.salvar_dadosAluno(nomeAluno.text, spTurma.text, matriculaAluno.text, chkSim.active, chkFem.active)
+
+<CadastroOrdem>:
+    BoxLayout:
+        orientation:'vertical'
+        Label:
+            text:'Ordem na fila'
+        Spinner:
+            id: spTurmaEscolhida
+            size_hint: None, None
+            size: 150, 40
+            pos_hint: {'center_x': 0.5}
+            text: 'Escolha Turma'
+            values: 'selecionar'
+            
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 20
+            spacing: 10
+            canvas:
+                Color:
+                    rgba: [0.7, 0.4, 0.6, 1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            GridLayout:
+                cols: 5
+                spacing: 10, 10
+                size_hint_y: None
+                height: self.minimum_height
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing:20
+                    Label:
+                        text: 'Segunda'
+                    Spinner:
+                        id: spSegunda
+                        size_hint: None, None
+                        size: 150, 40
+                        pos_hint: {'center_x': 0.5}
+                        text: 'Escolha ordem'
+                        values: 'selecionar'
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing:20
+                    Label:
+                        text: 'Terça'
+                    Spinner:
+                        id: spTerca
+                        size_hint: None, None
+                        size: 150, 40
+                        pos_hint: {'center_x': 0.5}
+                        text: 'Escolha ordem'
+                        values: 'selecionar'
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing:20
+                    Label:
+                        text: 'Quarta'
+                    Spinner:
+                        id: spQuarta
+                        size_hint: None, None
+                        size: 150, 40
+                        pos_hint: {'center_x': 0.5}
+                        text: 'Escolha ordem'
+                        values: 'selecionar'
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing:20
+                    Label:
+                        text: 'Quinta'
+                    Spinner:
+                        id: spQuinta
+                        size_hint: None, None
+                        size: 150, 40
+                        pos_hint: {'center_x': 0.5}
+                        text: 'Escolha ordem'
+                        values: 'selecionar'
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    spacing:20
+                    Label:
+                        text: 'Sexta'
+                    Spinner:
+                        id: spSexta
+                        size_hint: None, None
+                        size: 150, 40
+                        pos_hint: {'center_x': 0.5}
+                        text: 'Escolha ordem'
+                        values: 'selecionar'
+            Widget:
+                size_hint_y: None
+                height: 200
+                Button:
+                    text:'SALVAR'
+                    on_release: root.salvar_Ordem(spTurmaEscolhida.text, spSegunda.text, spTerca.text, spQuarta.text, spQuinta.text, spSexta.text)
+
+<RegistroDia>:
+    BoxLayout:
+        orientation:'vertical'
+        ActionBar:
+            ActionView:
+                ActionPrevious:
+                    title: 'MóFome - Registro do Dia'
+                    on_release: app.root.current = 'menu'
+                ActionButton:
+                    text: 'Sair'
+                    on_release: app.stop()
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 100
+            spacing: 10
+            canvas:
+                Color:
+                    rgba: [0.7,0.4,0.6,1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            
+            Label:
+                text: 'Data'
+            TextInput:
+                id: data
+                multiline: False
+
+            Label:
+                text:'Almoço do dia'
+            TextInput:
+                id: almoco
+                multiline: False
+            
+            Label:
+                text:'Monitor'
+            TextInput:
+                id: monitorDia
+                multiline: False
+            
+
+
+<Relatorio>:
+    BoxLayout:
+        spacing: 20
+        padding: 100
+        orientation:'vertical'
+
+        Label:
+            text:'Gráfico de setor: Quantidade de Meninos e Meninas que almoçaram todos os dias'
+        
+        Label:
+            text:'Gráfico do quantitativo de pessoas que almoçaram: Dia X Almoço ofertado'
+        
+        Label:
+            text:'Número máximo e mínimo de pessoas que almoçaram'
+        
+        Label:
+            text:'Ranking das salas que mais almoçaram'
+
+        BoxLayout:
+            orientation:'horizontal'
+            Button:
+                text: 'IMPRIMIR RELATÓRIO'
+            
+            Button: 
+                text: 'Voltar'
+                on_release: app.root.current = 'menu'

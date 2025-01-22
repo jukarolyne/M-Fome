@@ -15,15 +15,15 @@ class Cadastro(Screen):
 class CadastroTurmas(Screen):
     def salvar_dadosTurma(self, nome_turma, matricula_turma):
         try:
-            arq_slvDataTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
+            tab_slvDataTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
         except FileNotFoundError:
-            arq_slvDataTurma = openpyxl.Workbook()
-            celula = arq_slvDataTurma.active
-            celula.append(['Nome', 'Turma', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'])
+            tab_slvDataTurma = openpyxl.Workbook()
+            celula = tab_slvDataTurma.active
+            celula.append(['Nome', 'Turma'])
         
-        celula = arq_slvDataTurma.active
+        celula = tab_slvDataTurma.active
         celula.append([nome_turma, int(matricula_turma)])
-        arq_slvDataTurma.save('cadastro_turmas.xlsx')
+        tab_slvDataTurma.save('cadastro_turmas.xlsx')
 
         self.ids.nomeTurma.text = ''
         self.ids.matriculaTurma.text = ''

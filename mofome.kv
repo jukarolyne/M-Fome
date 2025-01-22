@@ -212,6 +212,14 @@
 <CadastroOrdem>:
     BoxLayout:
         orientation:'vertical'
+        ActionBar:
+            ActionView:
+                ActionPrevious:
+                    title: 'MóFome - Ordem da Fila'
+                    on_release: app.root.current = 'menu'
+                ActionButton:
+                    text: 'Sair'
+                    on_release: app.stop()
         Label:
             text:'Ordem na fila'
         Spinner:

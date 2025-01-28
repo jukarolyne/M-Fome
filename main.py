@@ -59,38 +59,38 @@ class CadastroAlunos(Screen):
         arq_slvAluno.save('cadastro_alunos.xlsx')
 
         self.ids.nomeAluno.text = ''
-        self.ids.matriculaAluno.text = ''
-        self.ids.spTurma.text = 'Escolha Turma'
-        self.ids.chkSim.active = False
-        self.ids.chkNao.active = False
-        self.ids.chkMasc.active = False
-        self.ids.chkFem.active = False        
 
 class CadastroOrdem(Screen):
     def on_pre_enter(self):
-        arq_slvTurma = openpyxl.Workbook()
-        arq_slvTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
-        celulas = arq_slvTurma.active
-        
+        self.ids.grid.clear_widgets()  # Limpa os widgets existentes
+        #abre arquivo das turmas cadastradas e pega de lá o nome das turmas
+        try:
+            #pega cada turma cadastrada
+            arq_slvTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
+            celulas = arq_slvTurma.active
         turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
         num_turmas = len(turmas_cadastradas)
-        self.ids.spTurmaEscolhida.values = turmas_cadastradas
-        self.ids.spSegunda.values = [str(i) for i in range(1, num_turmas + 1)]
-        self.ids.spTerca.values = [str(i) for i in range(1, num_turmas + 1)]
-        self.ids.spQuarta.values = [str(i) for i in range(1, num_turmas + 1)]
-        self.ids.spQuinta.values = [str(i) for i in range(1, num_turmas + 1)]
-        self.ids.spSexta.values = [str(i) for i in range(1, num_turmas + 1)]
+        dias_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
 
-    def salvar_Ordem(self, turma, segunda, terca, quarta, quinta, sexta):
-        try:
-            arq_slvDataOrdem = openpyxl.load_workbook('cadastro_ordemTurmas.xlsx')
-        except FileNotFoundError:
-            arq_slvDataOrdem = openpyxl.Workbook()
-            celula = arq_slvDataOrdem.active
-            celula.append(['Turma', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'])
-        
+        # pega a quantidade de turmas e cria os botões de selecao
+        for turma in turmas_cadastradas:
+            self.ids.grid.add_widget(Label(text=turma))
+            for dia in dias_semana:
+                spinner = Spinner(
+                    text='Escolha',
+                    values=[str(i) for i in range(1, num_turmas + 1)], 
+                    size_hint=(None, None),
+                    size=(150, 40),
+                    pos_hint={'center_x': 0.5}
+                )
+                self.ids.grid.add_widget(spinner) # adiciona turma com os dias da semana na tela
+
+    def salvar_Ordem(self):
+            
+        arq_slvDataOrdem = openpyxl.Workbook()
         celula = arq_slvDataOrdem.active
-        celula.append([turma, segunda, terca, quarta, quinta, sexta])
+        celula.append(['Turma', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'])
+        
         arq_slvDataOrdem.save('cadastro_OrdemTurmas.xlsx')
 
         self.ids.spSegunda.text = 'Escolha Turma'

@@ -138,71 +138,6 @@
             TextInput:
                 id: nomeAluno
 
-            Label:
-                text: 'Turma'
-            Spinner:
-                id: spTurma
-                size_hint: None, None
-                size: 200, 50
-                pos_hint: {'center_x': 0.5}
-                text: 'Escolha turma'
-                values: 'selecionar'
-
-            Label:
-                text:'Matrícula'
-            TextInput:
-                id: matriculaAluno
-
-            Label:
-                text: 'Sexo'
-            BoxLayout:
-                orientation: 'horizontal'
-                spacing: 5
-                CheckBox:
-                    id: chkMasc
-                    group: 'sexo'
-                    pos_hint: {'x': 0.4, 'y': 0.5}
-                    size_hint: [0.2, 0.08]
-                    color: 'black'
-                Label:
-                    text:'Masculino'
-            BoxLayout:
-                orientation:'horizontal'
-                spacing: 5
-                CheckBox:
-                    id: chkFem
-                    group: 'sexo'
-                    pos_hint: {'x': 0.1, 'y': 0.5}
-                    size_hint: [0.2, 0.08]
-                    color: 'black'
-                Label:
-                    text: 'Feminino'
-
-            Label:
-                text: 'Monitor'
-            BoxLayout:
-                orientation: 'horizontal'
-                spacing: 5
-                CheckBox:
-                    id: chkSim
-                    group: 'monitor'
-                    pos_hint: {'x': 0.4, 'y': 0.5}
-                    size_hint: [0.2, 0.08]
-                    color: 'black'
-                Label:
-                    text:'SIM'
-            BoxLayout:
-                orientation:'horizontal'
-                spacing: 5
-                CheckBox:
-                    id: chkNao
-                    group: 'monitor'
-                    pos_hint: {'x': 0.1, 'y': 0.5}
-                    size_hint: [0.2, 0.08]
-                    color: 'black'
-                Label:
-                    text: 'NÃO'           
-
             Button:
                 height: 100
                 width: 100
@@ -220,16 +155,6 @@
                 ActionButton:
                     text: 'Sair'
                     on_release: app.stop()
-        Label:
-            text:'Ordem na fila'
-        Spinner:
-            id: spTurmaEscolhida
-            size_hint: None, None
-            size: 150, 40
-            pos_hint: {'center_x': 0.5}
-            text: 'Escolha Turma'
-            values: 'selecionar'
-            
         BoxLayout:
             orientation: 'vertical'
             padding: 20
@@ -353,10 +278,6 @@
             
             Label:
                 text:'Monitor'
-            TextInput:
-                id: monitorDia
-                multiline: False
-            
 
 
 <Relatorio>:

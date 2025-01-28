@@ -5,8 +5,8 @@
         name: 'cadastro'
     CadastroTurmas:
         name: 'cadastroTurmas'
-    CadastroAlunos:
-        name: 'cadastroAlunos'
+    CadastroMonitor:
+        name: 'cadastroMonitor'
     CadastroOrdem:
         name: 'cadastroOrdem'
     RegistroDia:
@@ -66,8 +66,8 @@
                 on_release: app.root.current = 'cadastroTurmas'
             
             Button:
-                text: 'Cadastrar Alunos'
-                on_release: app.root.current = 'cadastroAlunos'
+                text: 'Cadastrar Monitor'
+                on_release: app.root.current = 'cadastroMonitor'
 
             Button:
                 text: 'Cadastrar Ordem de almoço'
@@ -111,19 +111,31 @@
                 text:'SALVAR'
                 on_release: root.salvar_dadosTurma(nomeTurma.text, matriculaTurma.text)
 
-<CadastroAlunos>:
+<CadastroMonitor>:
     BoxLayout:
         orientation:'vertical'
+        canvas:
+            Color:
+                rgba: [0.7,0.4,0.6,1]
+            Rectangle:
+                size: self.size
+                pos: self.pos
         ActionBar:
             ActionView:
                 ActionPrevious:
-                    title: 'MóFome - Cadastro de Alunos'
+                    title: 'MóFome - Cadastro de Monitor'
                     on_release: app.root.current = 'cadastro'
                 ActionButton:
                     text: 'Sair'
                     on_release: app.stop()
+        ScrollView:
+            BoxLayout:
+                id: box
+                orientation:'vertical'
+                size_hint_y: None
+                height: self.minimum_height
         BoxLayout:
-            orientation: 'vertical'
+            orientation:'vertical'
             padding: 50
             spacing: 10
             canvas:
@@ -136,13 +148,13 @@
             Label:
                 text: 'Nome do Aluno'
             TextInput:
-                id: nomeAluno
+                id: nomeAluno         
 
             Button:
                 height: 100
                 width: 100
                 text:'SALVAR'
-                on_release: root.salvar_dadosAluno(nomeAluno.text, spTurma.text, matriculaAluno.text, chkSim.active, chkFem.active)
+                on_release: root.salvar_dadosMonitor(nomeAluno.text)
 
 <CadastroOrdem>:
     BoxLayout:
@@ -161,86 +173,22 @@
             spacing: 10
             canvas:
                 Color:
-                    rgba: [0.7, 0.4, 0.6, 1]
+                    rgba: [0.7,0.4,0.6,1]
                 Rectangle:
                     size: self.size
                     pos: self.pos
-            GridLayout:
-                cols: 5
-                spacing: 10, 10
+            ScrollView:
+                GridLayout:
+                    id: grid
+                    cols: 6
+                    spacing: 10, 10
+                    size_hint_y: None
+                    height: self.minimum_height
+            Button:
+                text: 'Salvar Ordem'
                 size_hint_y: None
-                height: self.minimum_height
-
-                BoxLayout:
-                    orientation: 'vertical'
-                    spacing:20
-                    Label:
-                        text: 'Segunda'
-                    Spinner:
-                        id: spSegunda
-                        size_hint: None, None
-                        size: 150, 40
-                        pos_hint: {'center_x': 0.5}
-                        text: 'Escolha ordem'
-                        values: 'selecionar'
-
-                BoxLayout:
-                    orientation: 'vertical'
-                    spacing:20
-                    Label:
-                        text: 'Terça'
-                    Spinner:
-                        id: spTerca
-                        size_hint: None, None
-                        size: 150, 40
-                        pos_hint: {'center_x': 0.5}
-                        text: 'Escolha ordem'
-                        values: 'selecionar'
-
-                BoxLayout:
-                    orientation: 'vertical'
-                    spacing:20
-                    Label:
-                        text: 'Quarta'
-                    Spinner:
-                        id: spQuarta
-                        size_hint: None, None
-                        size: 150, 40
-                        pos_hint: {'center_x': 0.5}
-                        text: 'Escolha ordem'
-                        values: 'selecionar'
-
-                BoxLayout:
-                    orientation: 'vertical'
-                    spacing:20
-                    Label:
-                        text: 'Quinta'
-                    Spinner:
-                        id: spQuinta
-                        size_hint: None, None
-                        size: 150, 40
-                        pos_hint: {'center_x': 0.5}
-                        text: 'Escolha ordem'
-                        values: 'selecionar'
-
-                BoxLayout:
-                    orientation: 'vertical'
-                    spacing:20
-                    Label:
-                        text: 'Sexta'
-                    Spinner:
-                        id: spSexta
-                        size_hint: None, None
-                        size: 150, 40
-                        pos_hint: {'center_x': 0.5}
-                        text: 'Escolha ordem'
-                        values: 'selecionar'
-            Widget:
-                size_hint_y: None
-                height: 200
-                Button:
-                    text:'SALVAR'
-                    on_release: root.salvar_Ordem(spTurmaEscolhida.text, spSegunda.text, spTerca.text, spQuarta.text, spQuinta.text, spSexta.text)
+                height: '40dp'
+                on_release: root.salvar_Ordem()
 
 <RegistroDia>:
     BoxLayout:
@@ -278,7 +226,14 @@
             
             Label:
                 text:'Monitor'
-
+            
+            Spinner:
+                id: spMonitor
+                size_hint: None, None
+                size: 200, 50
+                pos_hint: {'center_x': 0.5}
+                text: 'Escolha Monitor'
+                values: 'selecionar'
 
 <Relatorio>:
     BoxLayout:

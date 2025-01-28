@@ -2,6 +2,8 @@ import openpyxl
 from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
+from kivy.uix.label import Label
+from kivy.uix.spinner import Spinner
 
 class Gerenciador(ScreenManager):
     pass
@@ -19,7 +21,7 @@ class CadastroTurmas(Screen):
         except FileNotFoundError:
             tab_slvDataTurma = openpyxl.Workbook()
             celula = tab_slvDataTurma.active
-            celula.append(['Nome', 'Turma'])
+            celula.append(['Nome', 'Matrícula'])
         
         celula = tab_slvDataTurma.active
         celula.append([nome_turma, int(matricula_turma)])
@@ -28,37 +30,21 @@ class CadastroTurmas(Screen):
         self.ids.nomeTurma.text = ''
         self.ids.matriculaTurma.text = ''
 
-class CadastroAlunos(Screen): 
-    def on_pre_enter(self):
-        tab_Turmas = openpyxl.load_workbook('cadastro_turmas.xlsx')
-        celulas = tab_Turmas.active
-        turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
-        self.ids.spTurma.values = turmas_cadastradas
-
-    def salvar_dadosAluno(self, nome_aluno, turma_aluno, matricula_aluno, monitor, sexo):
-        
-        if monitor == False:
-            monitor = 'Não'
-        else:
-            monitor = 'Sim'
-        
-        if sexo == 'Masculino':
-            sexo = 'M'
-        else:
-            sexo = 'F'
+class CadastroMonitor(Screen): 
+    def salvar_dadosMonitor(self, nome_aluno):
 
         try:
-            arq_slvAluno = openpyxl.load_workbook('cadastro_alunos.xlsx')
+            arq_slvMonitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
         except FileNotFoundError:
-            arq_slvAluno = openpyxl.Workbook()
-            celula = arq_slvAluno.active
-            celula.append(['Nome', 'Turma', 'Matricula', 'Participa da Monitoria', 'Sexo'])
+            arq_slvMonitor = openpyxl.Workbook()
+            celula = arq_slvMonitor.active
+            celula.append(['Nome'])
         
-        celula = arq_slvAluno.active
-        celula.append([nome_aluno, turma_aluno, int(matricula_aluno), monitor, sexo])
-        arq_slvAluno.save('cadastro_alunos.xlsx')
+        celula = arq_slvMonitor.active
+        celula.append([nome_aluno])
+        arq_slvMonitor.save('cadastro_monitores.xlsx')
 
-        self.ids.nomeAluno.text = ''
+        self.ids.nomeAluno.text = ''  
 
 class CadastroOrdem(Screen):
     def on_pre_enter(self):
@@ -68,7 +54,11 @@ class CadastroOrdem(Screen):
             #pega cada turma cadastrada
             arq_slvTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
             celulas = arq_slvTurma.active
-        turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
+            turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
+        except FileNotFoundError:
+            turmas_cadastradas = []
+        
+        #pega a quantidade de turmas
         num_turmas = len(turmas_cadastradas)
         dias_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
 
@@ -90,17 +80,31 @@ class CadastroOrdem(Screen):
         arq_slvDataOrdem = openpyxl.Workbook()
         celula = arq_slvDataOrdem.active
         celula.append(['Turma', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'])
+
+        divisao_grids = self.ids.grid.children
+        num_turmas = len(divisao_grids) // 6
+        
+        # cria uma lista com as turmas e as escolhas
+        for i in range(num_turmas):
+            turma_index = i * 6 + 5 
+            turma = divisao_grids[turma_index].text #pega o nome das turmas pela posicao
+            escolhas = [divisao_grids[turma_index - j].text for j in range(1, 6)] #pega as escolhas pela posicao
+            celula.append([turma] + escolhas) #adiciona na planilha
         
         arq_slvDataOrdem.save('cadastro_OrdemTurmas.xlsx')
 
-        self.ids.spSegunda.text = 'Escolha Turma'
-        self.ids.spTerca.text = 'Escolha Turma'
-        self.ids.spQuarta.text = 'Escolha Turma'
-        self.ids.spQuinta.text = 'Escolha Turma'
-        self.ids.spSexta.text = 'Escolha Turma'
+        # Resetar os textos dos Spinners
+        for i in range(len(divisao_grids)):
+            if isinstance(divisao_grids[i], Spinner):
+                divisao_grids[i].text = 'Escolha'
 
 class RegistroDia(Screen):
-    pass
+    def on_pre_enter(self):
+        tab_Monitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
+        celulas = tab_Monitor.active
+        monitores_cadastrados = [celula.value for celula in celulas['A'][1:]]
+        self.ids.spMonitor.values = monitores_cadastrados
+
 
 class Relatorio(Screen):
     pass
@@ -109,5 +113,5 @@ class Mofome(App):
     def build(self):
         return Gerenciador()
 
-Builder.load_file('mofome.kv')
-Mofome().run()
+if __name__ == '__main__':
+    Mofome().run()

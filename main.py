@@ -4,6 +4,7 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
+from kivy.uix.textinput import TextInput
 
 class Gerenciador(ScreenManager):
     pass
@@ -60,15 +61,16 @@ class CadastroOrdem(Screen):
         dias_semana = ['Turma','Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
 
         for dia in dias_semana:
-            self.ids.grid.add_widget(Label(text=dia, 
-                                           size_hint_y=None,
-                                           height= 40))
-            
+            self.ids.grid.add_widget(Label(
+                text=dia, 
+                size_hint_y=None,
+                height= 40))
 
         for turma in turmas_cadastradas:
-            self.ids.grid.add_widget(Label(text=turma,
-                                           size_hint_y=None,
-                                           height=40))
+            self.ids.grid.add_widget(Label(
+                text=turma,
+                size_hint_y=None,
+                height=40))
             for _ in dias_semana[1:]:
                     self.ids.grid.add_widget(Spinner(
                         text='Escolha', 
@@ -104,6 +106,19 @@ class RegistroDia(Screen):
         celulas = tab_Monitor.active
         monitores_cadastrados = [celula.value for celula in celulas['A'][1:]]
         self.ids.spMonitor.values = monitores_cadastrados
+
+        try:
+            arq_slvTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
+            celulas = arq_slvTurma.active
+            turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
+        except FileNotFoundError:
+            turmas_cadastradas = []
+        
+        # Adiciona os widgets para cada turma
+        for turma in turmas_cadastradas:
+            self.ids.grid.add_widget(Label(text=turma, size_hint_y=None, height=40))
+            self.ids.grid.add_widget(TextInput(hint_text='Meninos', size_hint_y=None, height=40))
+            self.ids.grid.add_widget(TextInput(hint_text='Meninas', size_hint_y=None, height=40))
     
     def salvar_frequencia(self, data, almoco, monitor):
         try:

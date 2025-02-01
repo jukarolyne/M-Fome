@@ -235,6 +235,12 @@
                 text: 'Escolha Monitor'
                 values: 'selecionar'
 
+            Button:
+                text: 'Salvar Frequência'
+                size_hint_y: None
+                height: '40dp'
+                on_release: root.salvar_frequencia(data.text, almoco.text, spMonitor.text)
+
 <Relatorio>:
     BoxLayout:
         spacing: 20

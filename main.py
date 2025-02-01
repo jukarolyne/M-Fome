@@ -48,32 +48,34 @@ class CadastroMonitor(Screen):
 
 class CadastroOrdem(Screen):
     def on_pre_enter(self):
-        self.ids.grid.clear_widgets()  # Limpa os widgets existentes
-        #abre arquivo das turmas cadastradas e pega de lá o nome das turmas
+        self.ids.grid.clear_widgets()
         try:
-            #pega cada turma cadastrada
             arq_slvTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
             celulas = arq_slvTurma.active
             turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
         except FileNotFoundError:
             turmas_cadastradas = []
         
-        #pega a quantidade de turmas
         num_turmas = len(turmas_cadastradas)
-        dias_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
+        dias_semana = ['Turma','Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
 
-        # pega a quantidade de turmas e cria os botões de selecao
+        for dia in dias_semana:
+            self.ids.grid.add_widget(Label(text=dia, 
+                                           size_hint_y=None,
+                                           height= 40))
+            
+
         for turma in turmas_cadastradas:
-            self.ids.grid.add_widget(Label(text=turma))
-            for dia in dias_semana:
-                spinner = Spinner(
-                    text='Escolha',
-                    values=[str(i) for i in range(1, num_turmas + 1)], 
-                    size_hint=(None, None),
-                    size=(150, 40),
-                    pos_hint={'center_x': 0.5}
-                )
-                self.ids.grid.add_widget(spinner) # adiciona turma com os dias da semana na tela
+            self.ids.grid.add_widget(Label(text=turma,
+                                           size_hint_y=None,
+                                           height=40))
+            for _ in dias_semana[1:]:
+                    self.ids.grid.add_widget(Spinner(
+                        text='Escolha', 
+                        values=[str(i) for i in range(1, num_turmas + 1)],
+                        size_hint=(None, None),
+                        size=(150, 40),
+                        pos_hint={'center_x': 0.5}))
 
     def salvar_Ordem(self):
             
@@ -84,16 +86,14 @@ class CadastroOrdem(Screen):
         divisao_grids = self.ids.grid.children
         num_turmas = len(divisao_grids) // 6
         
-        # cria uma lista com as turmas e as escolhas
         for i in range(num_turmas):
             turma_index = i * 6 + 5 
-            turma = divisao_grids[turma_index].text #pega o nome das turmas pela posicao
-            escolhas = [divisao_grids[turma_index - j].text for j in range(1, 6)] #pega as escolhas pela posicao
-            celula.append([turma] + escolhas) #adiciona na planilha
+            turma = divisao_grids[turma_index].text 
+            escolhas = [divisao_grids[turma_index - j].text for j in range(1, 6)]
+            celula.append([turma] + escolhas)
         
         arq_slvDataOrdem.save('cadastro_OrdemTurmas.xlsx')
 
-        # Resetar os textos dos Spinners
         for i in range(len(divisao_grids)):
             if isinstance(divisao_grids[i], Spinner):
                 divisao_grids[i].text = 'Escolha'
@@ -104,7 +104,26 @@ class RegistroDia(Screen):
         celulas = tab_Monitor.active
         monitores_cadastrados = [celula.value for celula in celulas['A'][1:]]
         self.ids.spMonitor.values = monitores_cadastrados
+    
+    def salvar_frequencia(self, data, almoco, monitor):
+        try:
+            workbook = openpyxl.load_workbook('frequencia.xlsx')
+        except FileNotFoundError:
+            workbook = openpyxl.Workbook()
+            celula = workbook.active
+            celula.title = 'Frequencia'
+            celula.append(['Data', 'Almoço', 'Monitor'])
+        else:
+            celula = workbook['Frequencia']
 
+        celula.append([data, almoco, monitor])
+
+        workbook.save('frequencia.xlsx')
+        #print("Frequência salva com sucesso.")
+
+        self.ids.data.text = ''
+        self.ids.almoco.text = ''
+        self.ids.spMonitor.text = 'Escolha Monitor'
 
 class Relatorio(Screen):
     pass

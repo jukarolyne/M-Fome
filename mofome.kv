@@ -201,41 +201,50 @@
                 ActionButton:
                     text: 'Sair'
                     on_release: app.stop()
-        ScrollView:
-            BoxLayout:
-                orientation: 'vertical'
-                padding: 50
-                spacing: 5
-                canvas:
-                    Color:
-                        rgba: [0.7,0.4,0.6,1]
-                    Rectangle:
-                        size: self.size
-                        pos: self.pos
-                    
-                Label:
-                    text: 'Data'
-                TextInput:
-                    id: data
-                    multiline: False
 
-                Label:
-                    text:'Almoço do dia'
-                TextInput:
-                    id: almoco
-                    multiline: False
-                    
-                Label:
-                    text:'Monitor'
-                    
-                Spinner:                    
-                    id: spMonitor        
-                    size_hint: None, None
-                    size: 200, 50
-                    pos_hint: {'center_x': 0.5}
-                    text: 'Escolha Monitor'
-                    values: 'selecionar'
+        BoxLayout:
+            orientation: 'vertical'
+            padding: 50
+            spacing: 5
+            canvas:
+                Color:
+                    rgba: [0.7,0.4,0.6,1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+                
+            Label:
+                text: 'Data'
+            TextInput:
+                id: data
+                multiline: False
+                size_hint_y: None
+                height: 30
 
+            Label:
+                text:'Almoço do dia'
+            TextInput:
+                id: almoco
+                multiline: False
+                size_hint_y: None
+                height: 30
+                
+            Label:
+                text:'Monitor'
+                size_hint_y: None
+                height: 30
+                size_hint_x: None
+                width: 100
+
+            Spinner:                    
+                id: spMonitor        
+                size_hint: None, None
+                size: 200, 50
+                pos_hint: {'center_x': 0.5}
+                text: 'Escolha Monitor'
+                values: 'selecionar'
+
+            ScrollView:
                 GridLayout:
                     id: grid
                     cols: 3  
@@ -243,11 +252,11 @@
                     size_hint_y: None
                     height: self.minimum_height
 
-                Button:
-                    text: 'Salvar Frequência'
-                    size_hint_y: None
-                    height: '40dp'
-                    on_release: root.salvar_frequencia(data.text, almoco.text, spMonitor.text)
+            Button:
+                text: 'Salvar Frequência'
+                size_hint_y: None
+                height: '40dp'
+                on_release: root.salvar_frequencia(data.text, almoco.text, spMonitor.text)
 
 <Relatorio>:
     BoxLayout:

@@ -187,6 +187,13 @@
                 text:'SALVAR'
                 on_release: root.salvar_dadosMonitor(nomeAluno.text)
 
+            # Button:
+            #     size_hint_y: None
+            #     height: 50
+            #     width: 50
+            #     text: 'excluir'
+            #     on_release: app.root.get_screen().ids.box.remove_widget(self)
+
 <CadastroOrdem>:
     BoxLayout:
         orientation:'vertical'
@@ -240,7 +247,7 @@
 
         BoxLayout:
             orientation: 'vertical'
-            padding: (20, 5, 20, 10)
+            padding: (20, 5, 20, 5)
             spacing: 5
             canvas:
                 Color:
@@ -265,13 +272,31 @@
                 size_hint_y: None
                 height: 30
 
+        BoxLayout:
+            orientation:'horizontal'
+            padding: (20, 0, 20, 20)
+            spacing: 10
+            canvas:
+                Color:
+                    rgba: [0.7,0.4,0.6,1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
             Spinner:                    
                 id: spMonitor        
                 size_hint: None, None
                 size: 150, 50
                 text: 'Escolha Monitor'
                 values: 'selecionar'
-        
+            
+            Spinner:
+                id: spDiaSemana
+                size_hint: None, None
+                size: 150, 50
+                text: 'Escolha Dia'
+                values: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
+            
         BoxLayout:
             orientation: 'vertical'
             padding: (20, 10, 20, 20)
@@ -298,7 +323,7 @@
                 size_hint_x: None
                 width: 200
                 pos_hint: {'center_x': 0.5}
-                on_release: root.salvar_frequencia(data.text, almoco.text, spMonitor.text)
+                on_release: root.salvar_frequencia(data.text, almoco.text, spMonitor.text, spDiaSemana.text)
 
 <Relatorio>:
     BoxLayout:

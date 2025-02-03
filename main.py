@@ -5,6 +5,7 @@ from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
 from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
 from kivy.core.window import Window
 
 class Gerenciador(ScreenManager):
@@ -61,8 +62,14 @@ class CadastroMonitor(Screen):
             monitores_cadastrados = []
         
         for monitor in monitores_cadastrados:
-            self.ids.box.add_widget(Label(text=monitor, size_hint_y=None, height=40))
-    
+            nome_monitor = Label(text=monitor, size_hint_y=None, height=40)
+            self.ids.box.add_widget(nome_monitor)
+            btn_remover = Button(text='Excluir', size_hint_y=None, height=40)
+            self.ids.box.add_widget(btn_remover)
+
+    def remover_monitor(self, monitor):  
+        pass    
+
     def salvar_dadosMonitor(self, nome_aluno):
 
         try:
@@ -164,24 +171,25 @@ class RegistroDia(Screen):
                                                height=40,
                                                multiline=False))
     
-    def salvar_frequencia(self, data, almoco, monitor):
+    def salvar_frequencia(self, data, almoco, monitor, dia_semana):
         try:
             workbook = openpyxl.load_workbook('frequencia.xlsx')
         except FileNotFoundError:
             workbook = openpyxl.Workbook()
             celula = workbook.active
             celula.title = 'Frequencia'
-            celula.append(['Data', 'Almoço', 'Monitor'])
+            celula.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana'])
         else:
             celula = workbook['Frequencia']
 
-        celula.append([data, almoco, monitor])
+        celula.append([data, almoco, monitor, dia_semana])
 
         workbook.save('frequencia.xlsx')
 
         self.ids.data.text = ''
         self.ids.almoco.text = ''
         self.ids.spMonitor.text = 'Escolha Monitor'
+        self.ids.dia_semana.text = 'Escolha Dia'
 
 class Relatorio(Screen):
     pass

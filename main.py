@@ -151,7 +151,6 @@ class RegistroDia(Screen):
         except FileNotFoundError:
             turmas_cadastradas = []
         
-        # Adiciona os widgets para cada turma
         for turma in turmas_cadastradas:
             self.ids.grid.add_widget(Label(text=turma, 
                                            size_hint_y=None, 

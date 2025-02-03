@@ -17,7 +17,7 @@
 <Menu>:
     BoxLayout:
         orientation:'vertical'
-        padding: 140
+        padding: (30, 100, 30, 100)
         spacing: 10
         canvas:
             Color:
@@ -52,7 +52,7 @@
 
         BoxLayout:
             orientation:'vertical'
-            padding: 140
+            padding: (30, 100, 30, 100)
             spacing: 10
             canvas:
                 Color:
@@ -76,6 +76,12 @@
 <CadastroTurmas>
     BoxLayout:
         orientation:'vertical'
+        canvas:
+            Color:
+                rgba: [0.7,0.4,0.6,1]
+            Rectangle:
+                size: self.size
+                pos: self.pos
         ActionBar:
             ActionView:
                 ActionPrevious:
@@ -84,9 +90,16 @@
                 ActionButton:
                     text: 'Sair'
                     on_release: app.stop()
+        ScrollView:
+            BoxLayout:
+                id: box
+                orientation:'vertical'
+                size_hint_y: None
+                height: self.minimum_height
+
         BoxLayout:
             orientation: 'vertical'
-            padding: 100
+            padding: 20
             spacing: 10
             canvas:
                 Color:
@@ -100,14 +113,23 @@
             TextInput:
                 id: nomeTurma
                 multiline: False
+                size_hint_y: None
+                height: 30
 
             Label:
                 text:'Matrícula'
             TextInput:
                 id: matriculaTurma
                 multiline: False
+                size_hint_y: None
+                height: 30
                 
             Button:
+                size_hint_y: None
+                height: 50
+                size_hint_x: None
+                width: 100
+                pos_hint: {'center_x': 0.5}
                 text:'SALVAR'
                 on_release: root.salvar_dadosTurma(nomeTurma.text, matriculaTurma.text)
 
@@ -136,7 +158,7 @@
                 height: self.minimum_height
         BoxLayout:
             orientation:'vertical'
-            padding: 50
+            padding: 20
             spacing: 10
             canvas:
                 Color:
@@ -147,12 +169,21 @@
 
             Label:
                 text: 'Nome do Aluno'
+                size_hint_y: None
+                height: 30
+
             TextInput:
                 id: nomeAluno         
+                multiline: False
+                size_hint_y: None
+                height: 30
 
             Button:
-                height: 100
+                size_hint_y: None
+                height: 50
+                size_hint_x: None
                 width: 100
+                pos_hint: {'center_x': 0.5}
                 text:'SALVAR'
                 on_release: root.salvar_dadosMonitor(nomeAluno.text)
 
@@ -169,7 +200,7 @@
                     on_release: app.stop()
         BoxLayout:
             orientation: 'vertical'
-            padding: 20
+            padding: (10, 10, 0, 15)
             spacing: 10
             canvas:
                 Color:
@@ -184,10 +215,15 @@
                     spacing: 10, 10
                     size_hint_y: None
                     height: self.minimum_height
+                    width: self.minimum_width
+
             Button:
                 text: 'Salvar Ordem'
                 size_hint_y: None
-                height: '40dp'
+                height: 50
+                size_hint_x: None
+                width: 100
+                pos_hint: {'center_x': 0.5}
                 on_release: root.salvar_Ordem()
 
 <RegistroDia>:
@@ -204,7 +240,7 @@
 
         BoxLayout:
             orientation: 'vertical'
-            padding: 50
+            padding: (20, 5, 20, 10)
             spacing: 5
             canvas:
                 Color:
@@ -212,7 +248,7 @@
                 Rectangle:
                     size: self.size
                     pos: self.pos
-                
+                    
             Label:
                 text: 'Data'
             TextInput:
@@ -228,22 +264,25 @@
                 multiline: False
                 size_hint_y: None
                 height: 30
-                
-            Label:
-                text:'Monitor'
-                size_hint_y: None
-                height: 30
-                size_hint_x: None
-                width: 100
 
             Spinner:                    
                 id: spMonitor        
                 size_hint: None, None
-                size: 200, 50
-                pos_hint: {'center_x': 0.5}
+                size: 150, 50
                 text: 'Escolha Monitor'
                 values: 'selecionar'
-
+        
+        BoxLayout:
+            orientation: 'vertical'
+            padding: (20, 10, 20, 20)
+            spacing: 20
+            canvas:
+                Color:
+                    rgba: [0.7,0.4,0.6,1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+        
             ScrollView:
                 GridLayout:
                     id: grid
@@ -255,14 +294,23 @@
             Button:
                 text: 'Salvar Frequência'
                 size_hint_y: None
-                height: '40dp'
+                height: 50
+                size_hint_x: None
+                width: 200
+                pos_hint: {'center_x': 0.5}
                 on_release: root.salvar_frequencia(data.text, almoco.text, spMonitor.text)
 
 <Relatorio>:
     BoxLayout:
-        spacing: 20
-        padding: 100
         orientation:'vertical'
+        padding: 20
+        spacing: 10
+        canvas:
+            Color:
+                rgba: [0.7,0.4,0.6,1]
+            Rectangle:
+                size: self.size
+                pos: self.pos
 
         Label:
             text:'Gráfico de setor: Quantidade de Meninos e Meninas que almoçaram todos os dias'
@@ -279,8 +327,14 @@
         BoxLayout:
             orientation:'horizontal'
             Button:
-                text: 'IMPRIMIR RELATÓRIO'
+                size_hint_y: None
+                height: 50
+                width: 50
+                text: 'Imprimir relatório'
             
             Button: 
+                size_hint_y: None
+                height: 50
+                width: 50
                 text: 'Voltar'
                 on_release: app.root.current = 'menu'

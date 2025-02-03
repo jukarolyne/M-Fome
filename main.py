@@ -5,6 +5,7 @@ from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
 from kivy.uix.textinput import TextInput
+from kivy.core.window import Window
 
 class Gerenciador(ScreenManager):
     pass
@@ -16,6 +17,20 @@ class Cadastro(Screen):
     pass
 
 class CadastroTurmas(Screen):
+    def on_pre_enter(self):
+        self.ids.box.clear_widgets()
+
+        try:
+            arq_slvTurmas = openpyxl.load_workbook('cadastro_turmas.xlsx')
+            celulas = arq_slvTurmas.active
+            turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
+
+        except FileNotFoundError:
+            turmas_cadastradas = []
+        
+        for turmas in turmas_cadastradas:
+            self.ids.box.add_widget(Label(text=turmas, size_hint_y=None, size_hint_x=None, height=40))
+
     def salvar_dadosTurma(self, nome_turma, matricula_turma):
         try:
             tab_slvDataTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
@@ -28,10 +43,26 @@ class CadastroTurmas(Screen):
         celula.append([nome_turma, int(matricula_turma)])
         tab_slvDataTurma.save('cadastro_turmas.xlsx')
 
+        self.ids.box.add_widget(Label(text=nome_turma, size_hint_y=None, height=40))
+
         self.ids.nomeTurma.text = ''
         self.ids.matriculaTurma.text = ''
 
 class CadastroMonitor(Screen): 
+    def on_pre_enter(self):
+        self.ids.box.clear_widgets()
+
+        try:
+            arq_slvMonitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
+            celulas = arq_slvMonitor.active
+            monitores_cadastrados = [celula.value for celula in celulas['A'][1:]]
+
+        except FileNotFoundError:
+            monitores_cadastrados = []
+        
+        for monitor in monitores_cadastrados:
+            self.ids.box.add_widget(Label(text=monitor, size_hint_y=None, height=40))
+    
     def salvar_dadosMonitor(self, nome_aluno):
 
         try:
@@ -45,10 +76,13 @@ class CadastroMonitor(Screen):
         celula.append([nome_aluno])
         arq_slvMonitor.save('cadastro_monitores.xlsx')
 
+        self.ids.box.add_widget(Label(text=nome_aluno, size_hint_y=None, height=40))
+
         self.ids.nomeAluno.text = ''  
 
 class CadastroOrdem(Screen):
     def on_pre_enter(self):
+        Window.size = (1240, 480)
         self.ids.grid.clear_widgets()
         try:
             arq_slvTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
@@ -71,7 +105,7 @@ class CadastroOrdem(Screen):
                 text=turma,
                 size_hint_y=None,
                 height=40))
-            for _ in dias_semana[1:]:
+            for dia in dias_semana[1:]:
                     self.ids.grid.add_widget(Spinner(
                         text='Escolha', 
                         values=[str(i) for i in range(1, num_turmas + 1)],
@@ -99,6 +133,9 @@ class CadastroOrdem(Screen):
         for i in range(len(divisao_grids)):
             if isinstance(divisao_grids[i], Spinner):
                 divisao_grids[i].text = 'Escolha'
+    
+    def on_leave(self):
+        Window.size = (360, 640)
 
 class RegistroDia(Screen):
     def on_pre_enter(self):
@@ -116,9 +153,17 @@ class RegistroDia(Screen):
         
         # Adiciona os widgets para cada turma
         for turma in turmas_cadastradas:
-            self.ids.grid.add_widget(Label(text=turma, size_hint_y=None, height=40))
-            self.ids.grid.add_widget(TextInput(hint_text='Meninos', size_hint_y=None, height=40))
-            self.ids.grid.add_widget(TextInput(hint_text='Meninas', size_hint_y=None, height=40))
+            self.ids.grid.add_widget(Label(text=turma, 
+                                           size_hint_y=None, 
+                                           height=40))
+            self.ids.grid.add_widget(TextInput(hint_text='Meninos', 
+                                               size_hint_y=None, 
+                                               height=40,
+                                               multiline=False))
+            self.ids.grid.add_widget(TextInput(hint_text='Meninas', 
+                                               size_hint_y=None, 
+                                               height=40,
+                                               multiline=False))
     
     def salvar_frequencia(self, data, almoco, monitor):
         try:
@@ -134,7 +179,6 @@ class RegistroDia(Screen):
         celula.append([data, almoco, monitor])
 
         workbook.save('frequencia.xlsx')
-        #print("Frequência salva com sucesso.")
 
         self.ids.data.text = ''
         self.ids.almoco.text = ''
@@ -145,6 +189,7 @@ class Relatorio(Screen):
 
 class Mofome(App):
     def build(self):
+        Window.size = (360, 640)
         return Gerenciador()
 
 if __name__ == '__main__':

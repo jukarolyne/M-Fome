@@ -64,8 +64,8 @@ class CadastroMonitor(Screen):
         for monitor in monitores_cadastrados:
             nome_monitor = Label(text=monitor, size_hint_y=None, height=40)
             self.ids.box.add_widget(nome_monitor)
-            btn_remover = Button(text='Excluir', size_hint_y=None, height=40)
-            self.ids.box.add_widget(btn_remover)
+            #btn_remover = Button(text='Excluir', size_hint_y=None, height=40)
+            #self.ids.box.add_widget(btn_remover)
 
     def remover_monitor(self, monitor):  
         pass    
@@ -132,7 +132,11 @@ class CadastroOrdem(Screen):
         for i in range(num_turmas):
             turma_index = i * 6 + 5 
             turma = divisao_grids[turma_index].text 
-            escolhas = [divisao_grids[turma_index - j].text for j in range(1, 6)]
+            escolhas = []
+
+            for j in range(1, 6):
+                escolhas.append(divisao_grids[turma_index - j].text)
+
             celula.append([turma] + escolhas)
         
         arq_slvDataOrdem.save('cadastro_OrdemTurmas.xlsx')
@@ -173,23 +177,24 @@ class RegistroDia(Screen):
     
     def salvar_frequencia(self, data, almoco, monitor, dia_semana):
         try:
-            workbook = openpyxl.load_workbook('frequencia.xlsx')
+            arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
         except FileNotFoundError:
-            workbook = openpyxl.Workbook()
-            celula = workbook.active
-            celula.title = 'Frequencia'
+            arq_slvFrequencia = openpyxl.Workbook()
+            celula = arq_slvFrequencia.active
+            #celula.title = 'Frequencia'
             celula.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana'])
-        else:
-            celula = workbook['Frequencia']
 
+        # else:
+        #     celula = workbook['Frequencia']
+        celula = arq_slvFrequencia.active
         celula.append([data, almoco, monitor, dia_semana])
 
-        workbook.save('frequencia.xlsx')
+        arq_slvFrequencia.save('frequencia.xlsx')
 
         self.ids.data.text = ''
         self.ids.almoco.text = ''
         self.ids.spMonitor.text = 'Escolha Monitor'
-        self.ids.dia_semana.text = 'Escolha Dia'
+        self.ids.spDiaSemana.text = 'Escolha Dia'
 
 class Relatorio(Screen):
     pass

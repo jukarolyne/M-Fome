@@ -133,8 +133,11 @@ class CadastroOrdem(Screen):
             turma = divisao_grids[turma_index].text 
             escolhas = []
 
-            for j in range(1, 6):
-                escolhas.append(divisao_grids[turma_index - j].text)
+            if not turma == 'Turma':
+                for j in range(1, 6):
+                    valor = divisao_grids[turma_index - j].text
+                    if valor.isdigit():
+                        escolhas.append(int(valor))
 
             celula.append([turma] + escolhas)
         
@@ -180,11 +183,25 @@ class RegistroDia(Screen):
         except FileNotFoundError:
             arq_slvFrequencia = openpyxl.Workbook()
             celula = arq_slvFrequencia.active
-            #celula.title = 'Frequencia'
-            celula.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana'])
+            celula.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana', 'Turmas', 'Meninos', 'Meninas'])
 
         celula = arq_slvFrequencia.active
-        celula.append([data, almoco, monitor, dia_semana])
+
+        divisao_grids = self.ids.grid.children
+        num_turmas = len(divisao_grids) // 3
+        
+        for i in range(num_turmas):
+            turma_index = i * 3 + 2 
+            turma = divisao_grids[turma_index].text 
+            escolhas = []
+
+            for j in range(1, 3):
+                escolhas.append(divisao_grids[turma_index - j].text)
+
+            quantidade_meninos = divisao_grids[turma_index - 2].text
+            quantidade_meninas = divisao_grids[turma_index - 1].text
+            
+            celula.append([data, almoco, monitor, dia_semana, turma, int(quantidade_meninos), int(quantidade_meninas)])
 
         arq_slvFrequencia.save('frequencia.xlsx')
 
@@ -192,6 +209,9 @@ class RegistroDia(Screen):
         self.ids.almoco.text = ''
         self.ids.spMonitor.text = 'Escolha Monitor'
         self.ids.spDiaSemana.text = 'Escolha Dia'
+        for i in range(len(divisao_grids)):
+            if isinstance(divisao_grids[i], TextInput):
+                divisao_grids[i].text = ''
 
 class Relatorio(Screen):
     pass

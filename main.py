@@ -121,7 +121,6 @@ class CadastroOrdem(Screen):
                         pos_hint={'center_x': 0.5}))
 
     def salvar_Ordem(self):
-            
         arq_slvDataOrdem = openpyxl.Workbook()
         celula = arq_slvDataOrdem.active
         celula.append(['Turma', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'])
@@ -184,8 +183,6 @@ class RegistroDia(Screen):
             #celula.title = 'Frequencia'
             celula.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana'])
 
-        # else:
-        #     celula = workbook['Frequencia']
         celula = arq_slvFrequencia.active
         celula.append([data, almoco, monitor, dia_semana])
 

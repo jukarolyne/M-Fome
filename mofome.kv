@@ -90,6 +90,11 @@
                 ActionButton:
                     text: 'Sair'
                     on_release: app.stop()
+        Label:
+            text:'Turmas Cadastradas'
+            size_hint_y: None
+            height: 40
+
         ScrollView:
             BoxLayout:
                 id: box
@@ -150,6 +155,11 @@
                 ActionButton:
                     text: 'Sair'
                     on_release: app.stop()
+        Label:
+            text:'Monitores Cadastrados'
+            size_hint_y: None
+            height: 40
+
         ScrollView:
             BoxLayout:
                 id: box
@@ -271,11 +281,13 @@
                 multiline: False
                 size_hint_y: None
                 height: 30
-
+            
         BoxLayout:
             orientation:'horizontal'
-            padding: (20, 0, 20, 20)
-            spacing: 10
+            padding: (20, 10, 10, 10)
+            spacing: 5
+            size_hint_y: None
+            height: self.minimum_height
             canvas:
                 Color:
                     rgba: [0.7,0.4,0.6,1]
@@ -287,15 +299,19 @@
                 id: spMonitor        
                 size_hint: None, None
                 size: 150, 50
+                pos_hint: {'center_x': 0.5}
+                pos_hint: {'center_y': 0.5}
                 text: 'Escolha Monitor'
                 values: 'selecionar'
-            
+
             Spinner:
                 id: spDiaSemana
                 size_hint: None, None
                 size: 150, 50
-                text: 'Escolha Dia'
-                values: ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
+                pos_hint: {'center_x': 0.5}
+                pos_hint: {'center_y': 0.5}
+                text: 'Segunda'
+                values: ['Segunda','Terça', 'Quarta', 'Quinta', 'Sexta']
             
         BoxLayout:
             orientation: 'vertical'
@@ -307,7 +323,11 @@
                 Rectangle:
                     size: self.size
                     pos: self.pos
-        
+            
+            Label:
+                text:'Frequência'
+                size_hint_y: None
+                height: 30
             ScrollView:
                 GridLayout:
                     id: grid

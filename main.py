@@ -156,16 +156,34 @@ class RegistroDia(Screen):
         celulas = tab_Monitor.active
         monitores_cadastrados = [celula.value for celula in celulas['A'][1:]]
         self.ids.spMonitor.values = monitores_cadastrados
+        self.ids.spDiaSemana.bind(text=self.on_spinner_select)
+        self.ordenar_turmas_dia(self.ids.spDiaSemana.text)
 
+    def on_spinner_select(self, spinner, text):
+        self.ordenar_turmas_dia(text)
+    
+    def ordenar_turmas_dia(self, dia_semana):
+        self.ids.grid.clear_widgets()
         try:
-            arq_slvTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
-            celulas = arq_slvTurma.active
-            turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
+            arq_slvOrdem = openpyxl.load_workbook('cadastro_OrdemTurmas.xlsx')
+            celulas = arq_slvOrdem.active
+            dias_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
+            dia_semana_index = dias_semana.index(dia_semana) + 1  # +1 porque a primeira coluna é 'Turma'
+
+            ordem_turmas = {}
+            for celula in celulas.iter_rows(min_row=2):
+                ordem_turmas[celula[0].value] = celula[dia_semana_index].value
+
         except FileNotFoundError:
-            turmas_cadastradas = []
+            ordem_turmas = {}
         
-        for turma in turmas_cadastradas:
-            self.ids.grid.add_widget(Label(text=turma, 
+        ordem_turmas = {turma: ordem for turma, ordem in ordem_turmas.items() if ordem is not None}
+        
+        turmas_ordenadas = sorted(ordem_turmas.items(), key=lambda x: x[1])
+        
+        for ordem, (turma, _) in enumerate(turmas_ordenadas, start=1):
+            form_turma = f'{ordem}º - {turma}'
+            self.ids.grid.add_widget(Label(text=form_turma, 
                                            size_hint_y=None, 
                                            height=40))
             self.ids.grid.add_widget(TextInput(hint_text='Meninos', 
@@ -208,7 +226,7 @@ class RegistroDia(Screen):
         self.ids.data.text = ''
         self.ids.almoco.text = ''
         self.ids.spMonitor.text = 'Escolha Monitor'
-        self.ids.spDiaSemana.text = 'Escolha Dia'
+        self.ids.spDiaSemana.text = 'Segunda'
         for i in range(len(divisao_grids)):
             if isinstance(divisao_grids[i], TextInput):
                 divisao_grids[i].text = ''

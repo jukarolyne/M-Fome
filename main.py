@@ -48,6 +48,23 @@ class CadastroTurmas(Screen):
 
         self.ids.nomeTurma.text = ''
         self.ids.matriculaTurma.text = ''
+    
+    def remover_turma(self, nome_turma):
+        try:
+            tab_slvDataTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
+        except FileNotFoundError:
+            return 'Não há turmas para excluir!'
+        
+        celula = tab_slvDataTurma.active
+        for row in celula.iter_rows(min_row=2, max_col=1):
+            if row[0].value == nome_turma:
+                celula.delete_rows(row[0].row, 1)
+                break
+
+        tab_slvDataTurma.save('cadastro_turmas.xlsx')
+
+        self.ids.nomeTurma.text = ''
+        self.on_pre_enter()
 
 class CadastroMonitor(Screen): 
     def on_pre_enter(self):
@@ -65,10 +82,7 @@ class CadastroMonitor(Screen):
             nome_monitor = Label(text=monitor, size_hint_y=None, height=40)
             self.ids.box.add_widget(nome_monitor)
 
-    def remover_monitor(self, monitor):  
-        pass    
-
-    def salvar_dadosMonitor(self, nome_aluno):
+    def salvar_monitor(self, nome_aluno):
 
         try:
             arq_slvMonitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
@@ -84,6 +98,22 @@ class CadastroMonitor(Screen):
         self.ids.box.add_widget(Label(text=nome_aluno, size_hint_y=None, height=40))
 
         self.ids.nomeAluno.text = ''  
+    
+    def remover_monitor(self, nome_aluno):  
+        try:
+            arq_slvMonitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
+        except FileNotFoundError:
+            return 'Não há nomes cadastrados para serem excluídos!'
+        
+        celula = arq_slvMonitor.active
+        for row in celula.iter_rows(min_row=2, max_col=1):
+            if row[0].value == nome_aluno:
+                celula.delete_rows(row[0].row, 1)
+                break
+        arq_slvMonitor.save('cadastro_monitores.xlsx')
+
+        self.ids.nomeAluno.text = ''  
+        self.on_pre_enter()
 
 class CadastroOrdem(Screen):
     def on_pre_enter(self):

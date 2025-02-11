@@ -128,15 +128,25 @@
                 multiline: False
                 size_hint_y: None
                 height: 30
+        
+        BoxLayout:
+            orientation:'horizontal'
+            padding: (20, 10, 10, 10)
+            spacing: 5
                 
             Button:
                 size_hint_y: None
                 height: 50
-                size_hint_x: None
-                width: 100
-                pos_hint: {'center_x': 0.5}
+                width: 50
                 text:'SALVAR'
                 on_release: root.salvar_dadosTurma(nomeTurma.text, matriculaTurma.text)
+            
+            Button:
+                size_hint_y: None
+                height: 50
+                width: 50
+                text:'EXCLUIR'
+                on_release: root.remover_turma(nomeTurma.text)
 
 <CadastroMonitor>:
     BoxLayout:
@@ -187,22 +197,24 @@
                 multiline: False
                 size_hint_y: None
                 height: 30
+        
+        BoxLayout:
+            orientation:'horizontal'
+            padding: (20, 10, 10, 10)
+            spacing: 5
+            Button:
+                size_hint_y: None
+                height: 50
+                width: 50
+                text:'SALVAR'
+                on_release: root.salvar_monitor(nomeAluno.text)
 
             Button:
                 size_hint_y: None
                 height: 50
-                size_hint_x: None
-                width: 100
-                pos_hint: {'center_x': 0.5}
-                text:'SALVAR'
-                on_release: root.salvar_dadosMonitor(nomeAluno.text)
-
-            # Button:
-            #     size_hint_y: None
-            #     height: 50
-            #     width: 50
-            #     text: 'excluir'
-            #     on_release: app.root.get_screen().ids.box.remove_widget(self)
+                width: 50
+                text: 'EXCLUIR'
+                on_release: root.remover_monitor(nomeAluno.text)
 
 <CadastroOrdem>:
     BoxLayout:

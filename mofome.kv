@@ -122,9 +122,9 @@
                 height: 30
 
             Label:
-                text:'Matrícula'
+                text:'Quantidade de Alunos'
             TextInput:
-                id: matriculaTurma
+                id: qtdeAlunos
                 multiline: False
                 size_hint_y: None
                 height: 30
@@ -139,7 +139,7 @@
                 height: 50
                 width: 50
                 text:'SALVAR'
-                on_release: root.salvar_dadosTurma(nomeTurma.text, matriculaTurma.text)
+                on_release: root.salvar_dadosTurma(nomeTurma.text, qtdeAlunos.text)
             
             Button:
                 size_hint_y: None

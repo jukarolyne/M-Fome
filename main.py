@@ -25,14 +25,18 @@ class CadastroTurmas(Screen):
             arq_slvTurmas = openpyxl.load_workbook('cadastro_turmas.xlsx')
             celulas = arq_slvTurmas.active
             turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
+            qtde_alunos = [celula.value for celula in celulas['B'][1:]]
 
         except FileNotFoundError:
             turmas_cadastradas = []
+            qtde_alunos = []
         
-        for turmas in turmas_cadastradas:
-            self.ids.box.add_widget(Label(text=turmas, size_hint_y=None, size_hint_x=None, height=40))
+        for turma, alunos in zip(turmas_cadastradas, qtde_alunos):
+            self.ids.box.add_widget(Label(text=f'TURMA: {turma} - QUANTIDADE DE ALUNOS: {alunos}', 
+                                        size_hint_y=None,  
+                                        height=40))
 
-    def salvar_dadosTurma(self, nome_turma, matricula_turma):
+    def salvar_dadosTurma(self, nome_turma, qtde_alunos):
         try:
             tab_slvDataTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
         except FileNotFoundError:
@@ -41,13 +45,15 @@ class CadastroTurmas(Screen):
             celula.append(['Nome', 'Matrícula'])
         
         celula = tab_slvDataTurma.active
-        celula.append([nome_turma, int(matricula_turma)])
+        celula.append([nome_turma, int(qtde_alunos)])
         tab_slvDataTurma.save('cadastro_turmas.xlsx')
 
-        self.ids.box.add_widget(Label(text=nome_turma, size_hint_y=None, height=40))
+        self.ids.box.add_widget(Label(text=f'{nome_turma} - quantidade de alunos: {qtde_alunos}', 
+                                      size_hint_y=None, 
+                                      height=40))
 
         self.ids.nomeTurma.text = ''
-        self.ids.matriculaTurma.text = ''
+        self.ids.qtdeAlunos.text = ''
     
     def remover_turma(self, nome_turma):
         try:

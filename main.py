@@ -64,8 +64,6 @@ class CadastroMonitor(Screen):
         for monitor in monitores_cadastrados:
             nome_monitor = Label(text=monitor, size_hint_y=None, height=40)
             self.ids.box.add_widget(nome_monitor)
-            #btn_remover = Button(text='Excluir', size_hint_y=None, height=40)
-            #self.ids.box.add_widget(btn_remover)
 
     def remover_monitor(self, monitor):  
         pass    

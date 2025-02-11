@@ -1,11 +1,12 @@
 import openpyxl
+import matplotlib.pyplot as plt
 from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
 from kivy.uix.textinput import TextInput
-from kivy.uix.button import Button
+from kivy_garden.matplotlib import FigureCanvasKivyAgg
 from kivy.core.window import Window
 
 class Gerenciador(ScreenManager):
@@ -275,3 +276,4 @@ class Mofome(App):
 
 if __name__ == '__main__':
     Mofome().run()
+

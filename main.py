@@ -48,7 +48,7 @@ class CadastroTurmas(Screen):
         celula.append([nome_turma, int(qtde_alunos)])
         tab_slvDataTurma.save('cadastro_turmas.xlsx')
 
-        self.ids.box.add_widget(Label(text=f'{nome_turma} - quantidade de alunos: {qtde_alunos}', 
+        self.ids.box.add_widget(Label(text=f'TURMA: {nome_turma} - QUANTIDADE DE ALUNOS: {qtde_alunos}', 
                                       size_hint_y=None, 
                                       height=40))
 

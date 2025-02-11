@@ -42,7 +42,7 @@ class CadastroTurmas(Screen):
         except FileNotFoundError:
             tab_slvDataTurma = openpyxl.Workbook()
             celula = tab_slvDataTurma.active
-            celula.append(['Nome', 'Matrícula'])
+            celula.append(['Nome da Turma', 'Quantidade de Alunos'])
         
         celula = tab_slvDataTurma.active
         celula.append([nome_turma, int(qtde_alunos)])

@@ -6,6 +6,7 @@ from kivy.lang import Builder
 from kivy.uix.label import Label
 from kivy.uix.spinner import Spinner
 from kivy.uix.textinput import TextInput
+from kivy.uix.popup import Popup
 from kivy_garden.matplotlib import FigureCanvasKivyAgg
 from kivy.core.window import Window
 
@@ -36,6 +37,17 @@ class CadastroTurmas(Screen):
             self.ids.box.add_widget(Label(text=f'TURMA: {turma} - QUANTIDADE DE ALUNOS: {alunos}', 
                                         size_hint_y=None,  
                                         height=40))
+    
+    def mostrar_popup(self):
+        msg_erro=Popup(
+            title = 'Erro de digitação',
+            content = Label(text='Digite novamente!'),
+            size_hint=(None, None),
+            size = (300, 100),
+            padding=(10, 10, 10, 10)
+        )
+
+        msg_erro.open()
 
     def salvar_dadosTurma(self, nome_turma, qtde_alunos):
         try:
@@ -46,7 +58,15 @@ class CadastroTurmas(Screen):
             celula.append(['Nome da Turma', 'Quantidade de Alunos'])
         
         celula = tab_slvDataTurma.active
-        celula.append([nome_turma, int(qtde_alunos)])
+
+        if len(nome_turma) == 4 and len(qtde_alunos) <= 2:
+            celula.append([nome_turma.upper(), int(qtde_alunos)])
+            self.ids.box.add_widget(Label(text=f'TURMA: {nome_turma.upper()} - QUANTIDADE DE ALUNOS: {qtde_alunos}', 
+                                      size_hint_y=None, 
+                                      height=40))
+        else:
+            self.mostrar_popup()
+
         tab_slvDataTurma.save('cadastro_turmas.xlsx')
 
         self.ids.box.add_widget(Label(text=f'TURMA: {nome_turma} - QUANTIDADE DE ALUNOS: {qtde_alunos}', 

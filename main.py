@@ -38,12 +38,12 @@ class CadastroTurmas(Screen):
                                         size_hint_y=None,  
                                         height=40))
     
-    def mostrar_popup(self):
+    def mostrar_popup(self, titulo, texto):
         msg_erro=Popup(
-            title = 'Erro de digitação',
-            content = Label(text='Digite novamente!'),
+            title = titulo,
+            content = Label(text=texto),
             size_hint=(None, None),
-            size = (300, 100),
+            size = (300, 200),
             padding=(10, 10, 10, 10)
         )
 
@@ -59,19 +59,20 @@ class CadastroTurmas(Screen):
         
         celula = tab_slvDataTurma.active
 
-        if len(nome_turma) == 4 and len(qtde_alunos) <= 2:
+        if len(nome_turma) > 0 and len(nome_turma) <= 5 and qtde_alunos.isdigit() and 1 <= int(qtde_alunos) <= 99:
             celula.append([nome_turma.upper(), int(qtde_alunos)])
             self.ids.box.add_widget(Label(text=f'TURMA: {nome_turma.upper()} - QUANTIDADE DE ALUNOS: {qtde_alunos}', 
                                       size_hint_y=None, 
                                       height=40))
-        else:
-            self.mostrar_popup()
+            self.mostrar_popup('Sucesso!', "A Turma solicitada foi adicionada.")
+
+        elif ValueError:
+            if qtde_alunos == '' or nome_turma == '':
+                self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Digite um valor válido. \nTurma deve no máximo 5 caracteres; \nQuantidade de Pessoas deve \nser de 1 a 99.')
+            else:
+                self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Digite um valor válido. \nTurma deve no máximo 5 caracteres; \nQuantidade de Pessoas deve \nser de 1 a 99.')
 
         tab_slvDataTurma.save('cadastro_turmas.xlsx')
-
-        self.ids.box.add_widget(Label(text=f'TURMA: {nome_turma} - QUANTIDADE DE ALUNOS: {qtde_alunos}', 
-                                      size_hint_y=None, 
-                                      height=40))
 
         self.ids.nomeTurma.text = ''
         self.ids.qtdeAlunos.text = ''
@@ -80,13 +81,17 @@ class CadastroTurmas(Screen):
         try:
             tab_slvDataTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
         except FileNotFoundError:
-            return 'Não há turmas para excluir!'
-        
+            return self.mostrar_popup('Erro!', 'Não há turmas cadastradas. Cadastre uma turma primeiro!')
+            
         celula = tab_slvDataTurma.active
+        
         for row in celula.iter_rows(min_row=2, max_col=1):
-            if row[0].value == nome_turma:
+            if row[0].value == nome_turma.upper():
                 celula.delete_rows(row[0].row, 1)
+                self.mostrar_popup('Sucesso!', 'A Turma solicitada foi removida.')
                 break
+        else:
+            self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Essa turma não existe ou você \ndeixou o campo vazio. \nConfira as turmas cadastradas \nacima antes de remover.')
 
         tab_slvDataTurma.save('cadastro_turmas.xlsx')
 
@@ -108,6 +113,17 @@ class CadastroMonitor(Screen):
         for monitor in monitores_cadastrados:
             nome_monitor = Label(text=monitor, size_hint_y=None, height=40)
             self.ids.box.add_widget(nome_monitor)
+    
+    def mostrar_popup(self, titulo, texto):
+        msg_erro=Popup(
+            title = titulo,
+            content = Label(text=texto),
+            size_hint=(None, None),
+            size = (300, 200),
+            padding=(10, 10, 10, 10)
+        )
+
+        msg_erro.open()
 
     def salvar_monitor(self, nome_aluno):
 
@@ -119,10 +135,15 @@ class CadastroMonitor(Screen):
             celula.append(['Nome'])
         
         celula = arq_slvMonitor.active
-        celula.append([nome_aluno])
-        arq_slvMonitor.save('cadastro_monitores.xlsx')
+        
+        if len(nome_aluno)>= 3 and len(nome_aluno) <= 80:
+            celula.append([nome_aluno.upper()])
+            self.ids.box.add_widget(Label(text=nome_aluno.upper(), size_hint_y=None, height=40))
 
-        self.ids.box.add_widget(Label(text=nome_aluno, size_hint_y=None, height=40))
+        else:
+            self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Você digitou um nome inválido \nou deixou o campo vazio. \nDigite novamente!')
+        
+        arq_slvMonitor.save('cadastro_monitores.xlsx')
 
         self.ids.nomeAluno.text = ''  
     
@@ -134,11 +155,16 @@ class CadastroMonitor(Screen):
         
         celula = arq_slvMonitor.active
         for row in celula.iter_rows(min_row=2, max_col=1):
-            if row[0].value == nome_aluno:
+            if row[0].value == nome_aluno.upper():
                 celula.delete_rows(row[0].row, 1)
+                self.mostrar_popup('Sucesso!', 'O Monitor solicitado foi removido.')
                 break
+        else:
+            self.mostrar_popup('Erro de Digitação!', 'Esse nome não existe. \nConfira os monitores cadastrados\nacima antes de remover.')
+
         arq_slvMonitor.save('cadastro_monitores.xlsx')
 
+        
         self.ids.nomeAluno.text = ''  
         self.on_pre_enter()
 
@@ -209,7 +235,13 @@ class RegistroDia(Screen):
     def on_pre_enter(self):
         tab_Monitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
         celulas = tab_Monitor.active
-        monitores_cadastrados = [celula.value for celula in celulas['A'][1:]]
+        monitores_cadastrados = []
+        for celula in celulas['A'][1:]:
+            nome = celula.value.split(" ")
+            nome1 = nome[0]
+            nome2 = nome[-1]
+            monitores_cadastrados.append(str(nome1+' '+nome2))
+
         self.ids.spMonitor.values = monitores_cadastrados
         self.ids.spDiaSemana.bind(text=self.on_spinner_select)
         self.ordenar_turmas_dia(self.ids.spDiaSemana.text)

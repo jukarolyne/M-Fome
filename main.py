@@ -1,5 +1,6 @@
 import openpyxl
 import matplotlib.pyplot as plt
+import re
 from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
@@ -39,7 +40,7 @@ class CadastroTurmas(Screen):
                                         height=40))
     
     def mostrar_popup(self, titulo, texto):
-        msg_erro=Popup(
+        msg=Popup(
             title = titulo,
             content = Label(text=texto),
             size_hint=(None, None),
@@ -47,7 +48,7 @@ class CadastroTurmas(Screen):
             padding=(10, 10, 10, 10)
         )
 
-        msg_erro.open()
+        msg.open()
 
     def salvar_dadosTurma(self, nome_turma, qtde_alunos):
         try:
@@ -115,7 +116,7 @@ class CadastroMonitor(Screen):
             self.ids.box.add_widget(nome_monitor)
     
     def mostrar_popup(self, titulo, texto):
-        msg_erro=Popup(
+        msg=Popup(
             title = titulo,
             content = Label(text=texto),
             size_hint=(None, None),
@@ -123,7 +124,7 @@ class CadastroMonitor(Screen):
             padding=(10, 10, 10, 10)
         )
 
-        msg_erro.open()
+        msg.open()
 
     def salvar_monitor(self, nome_aluno):
 
@@ -283,7 +284,7 @@ class RegistroDia(Screen):
                                                multiline=False))
     
     def mostrar_popup(self, titulo, texto):
-        msg_erro=Popup(
+        msg=Popup(
             title = titulo,
             content = Label(text=texto),
             size_hint=(None, None),
@@ -291,7 +292,7 @@ class RegistroDia(Screen):
             padding=(10, 10, 10, 10)
         )
 
-        msg_erro.open()
+        msg.open()
     
     def salvar_frequencia(self, data, almoco, monitor, dia_semana):
         try:
@@ -314,6 +315,18 @@ class RegistroDia(Screen):
         for trm in range(num_turmas):
             turma_index = trm * 3 + 2 
             turma = divisao_grids[turma_index].text[5:] 
+
+            if not re.match(r'^\d{2}/\d{2}/\d{4}$', data):
+                self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Você digitou uma data inválida ou \ndeixou o espaço em branco. \nUse apenas números e barra (/) como \no formato informado DD/MM/AAAA.')
+                return
+            
+            if len(almoco) < 7 or len(almoco) > 50:
+                self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Você digitou um almoço inválido \nou deixou o espaço em branco. \nDigite como informado no exemplo.')
+                return
+            
+            if monitor == 'Escolha Monitor':
+                self.mostrar_popup('Erro!', 'Nenhum Monitor foi escolhido. \nSelecione um Monitor.')
+                return
 
             quantidade_meninos = divisao_grids[turma_index - 2].text
             quantidade_meninas = divisao_grids[turma_index - 1].text

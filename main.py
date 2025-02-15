@@ -59,7 +59,7 @@ class CadastroTurmas(Screen):
         
         celula = tab_slvDataTurma.active
 
-        if len(nome_turma) > 0 and len(nome_turma) <= 5 and qtde_alunos.isdigit() and 1 <= int(qtde_alunos) <= 99:
+        if len(nome_turma) > 0 and len(nome_turma) <= 10 and qtde_alunos.isdigit() and 1 <= int(qtde_alunos) <= 99:
             celula.append([nome_turma.upper(), int(qtde_alunos)])
             self.ids.box.add_widget(Label(text=f'TURMA: {nome_turma.upper()} - QUANTIDADE DE ALUNOS: {qtde_alunos}', 
                                       size_hint_y=None, 
@@ -282,33 +282,55 @@ class RegistroDia(Screen):
                                                height=40,
                                                multiline=False))
     
+    def mostrar_popup(self, titulo, texto):
+        msg_erro=Popup(
+            title = titulo,
+            content = Label(text=texto),
+            size_hint=(None, None),
+            size = (300, 200),
+            padding=(10, 10, 10, 10)
+        )
+
+        msg_erro.open()
+    
     def salvar_frequencia(self, data, almoco, monitor, dia_semana):
         try:
             arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
+            arq_turma = openpyxl.load_workbook('cadastro_turmas.xlsx')
+            celulas_turma = arq_turma.active
+            turmas_cadastradas = {celula[0].value: celula[1].value for celula in celulas_turma.iter_rows(min_row=2, max_col=2)}
         except FileNotFoundError:
             arq_slvFrequencia = openpyxl.Workbook()
-            celula = arq_slvFrequencia.active
-            celula.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana', 'Turmas', 'Meninos', 'Meninas'])
+            celula_freq = arq_slvFrequencia.active
+            celula_freq.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana', 'Turmas', 'Meninos', 'Meninas'])
+            self.mostrar_popup('Erro!', 'Arquivo de cadastro de turmas \nnão encontrado.')
+            return
 
-        celula = arq_slvFrequencia.active
+        celula_freq = arq_slvFrequencia.active
 
         divisao_grids = self.ids.grid.children
         num_turmas = len(divisao_grids) // 3
         
-        for i in range(num_turmas):
-            turma_index = i * 3 + 2 
-            turma = divisao_grids[turma_index].text 
-            escolhas = []
-
-            for j in range(1, 3):
-                escolhas.append(divisao_grids[turma_index - j].text)
+        for trm in range(num_turmas):
+            turma_index = trm * 3 + 2 
+            turma = divisao_grids[turma_index].text[5:] 
 
             quantidade_meninos = divisao_grids[turma_index - 2].text
             quantidade_meninas = divisao_grids[turma_index - 1].text
-            
-            celula.append([data, almoco, monitor, dia_semana, turma, int(quantidade_meninos), int(quantidade_meninas)])
 
-        arq_slvFrequencia.save('frequencia.xlsx')
+            if not quantidade_meninos.isdigit() or not quantidade_meninas.isdigit():
+                self.mostrar_popup('Campo Vazio!', 'Quantidade de meninos ou meninas \nnão está preenchida. Verifique todos \nos campos antes de salvar.')
+                return
+
+            quantidade_meninos = int(quantidade_meninos)
+            quantidade_meninas = int(quantidade_meninas)
+            total_alunos = quantidade_meninos + quantidade_meninas
+
+            if turma in turmas_cadastradas and total_alunos > turmas_cadastradas[turma]:
+                self.mostrar_popup('Valor Inválido!', f'A quantidade total de alunos na \nturma {turma} excede o limite\n cadastrado.')
+                return
+
+            celula_freq.append([data, almoco, monitor, dia_semana, turma, quantidade_meninos, quantidade_meninas])
 
         self.ids.data.text = ''
         self.ids.almoco.text = ''
@@ -317,6 +339,9 @@ class RegistroDia(Screen):
         for i in range(len(divisao_grids)):
             if isinstance(divisao_grids[i], TextInput):
                 divisao_grids[i].text = ''
+
+        arq_slvFrequencia.save('frequencia.xlsx')
+        self.mostrar_popup('Sucesso!', 'Frequência salva com sucesso.')
 
 class Relatorio(Screen):
     pass
@@ -328,4 +353,3 @@ class Mofome(App):
 
 if __name__ == '__main__':
     Mofome().run()
-

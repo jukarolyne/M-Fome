@@ -362,32 +362,44 @@
 <Relatorio>:
     BoxLayout:
         orientation:'vertical'
-        padding: 20
-        spacing: 10
-        canvas:
-            Color:
-                rgba: [0.7,0.4,0.6,1]
-            Rectangle:
-                size: self.size
-                pos: self.pos
-        
-        BoxLayout:
-            id: box
-
-        # Label:
-        #     text:'Gráficos e tabelas'
+        ActionBar:
+            ActionView:
+                ActionPrevious:
+                    title: 'MóFome - Relatório Semanal'
+                    on_release: app.root.current = 'menu'
+                ActionButton:
+                    text: 'Sair'
+                    on_release: app.stop()
 
         BoxLayout:
-            orientation:'horizontal'
-            Button:
-                size_hint_y: None
-                height: 50
-                width: 50
-                text: 'Imprimir relatório'
+            orientation:'vertical'
+            padding: 20
+            spacing: 10
+            canvas:
+                Color:
+                    rgba: [0.7,0.4,0.6,1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+            BoxLayout:
+                id: box
+                orientation: 'vertical'
+                #padding: (10, 5, 10, 5)
+                #spacing: 2
+                size: root.width, root.height
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             
-            Button: 
+            BoxLayout:
+                id: box2
+                orientation: 'vertical'
+                #padding: 10
+                #spacing: 10
+                size: root.width, root.height
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+            
+            GridLayout:
+                cols: 2  
+                spacing: 10, 10
                 size_hint_y: None
-                height: 50
-                width: 50
-                text: 'Voltar'
-                on_release: app.root.current = 'menu'
+                height: self.minimum_height

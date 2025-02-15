@@ -1,5 +1,6 @@
 import openpyxl
 import matplotlib.pyplot as plt
+import numpy as np
 import re
 from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager
@@ -33,12 +34,12 @@ class CadastroTurmas(Screen):
         except FileNotFoundError:
             turmas_cadastradas = []
             qtde_alunos = []
-        
+
         for turma, alunos in zip(turmas_cadastradas, qtde_alunos):
-            self.ids.box.add_widget(Label(text=f'TURMA: {turma} - QUANTIDADE DE ALUNOS: {alunos}', 
-                                        size_hint_y=None,  
+            self.ids.box.add_widget(Label(text=f'TURMA: {turma} - QUANTIDADE DE ALUNOS: {alunos}',
+                                        size_hint_y=None,
                                         height=40))
-    
+
     def mostrar_popup(self, titulo, texto):
         msg=Popup(
             title = titulo,
@@ -57,13 +58,13 @@ class CadastroTurmas(Screen):
             tab_slvDataTurma = openpyxl.Workbook()
             celula = tab_slvDataTurma.active
             celula.append(['Nome da Turma', 'Quantidade de Alunos'])
-        
+
         celula = tab_slvDataTurma.active
 
         if len(nome_turma) > 0 and len(nome_turma) <= 10 and qtde_alunos.isdigit() and 1 <= int(qtde_alunos) <= 99:
             celula.append([nome_turma.upper(), int(qtde_alunos)])
-            self.ids.box.add_widget(Label(text=f'TURMA: {nome_turma.upper()} - QUANTIDADE DE ALUNOS: {qtde_alunos}', 
-                                      size_hint_y=None, 
+            self.ids.box.add_widget(Label(text=f'TURMA: {nome_turma.upper()} - QUANTIDADE DE ALUNOS: {qtde_alunos}',
+                                      size_hint_y=None,
                                       height=40))
             self.mostrar_popup('Sucesso!', "A Turma solicitada foi adicionada.")
 
@@ -77,15 +78,15 @@ class CadastroTurmas(Screen):
 
         self.ids.nomeTurma.text = ''
         self.ids.qtdeAlunos.text = ''
-    
+
     def remover_turma(self, nome_turma):
         try:
             tab_slvDataTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
         except FileNotFoundError:
             return self.mostrar_popup('Erro!', 'Não há turmas cadastradas. Cadastre uma turma primeiro!')
-            
+
         celula = tab_slvDataTurma.active
-        
+
         for row in celula.iter_rows(min_row=2, max_col=1):
             if row[0].value == nome_turma.upper():
                 celula.delete_rows(row[0].row, 1)
@@ -99,7 +100,7 @@ class CadastroTurmas(Screen):
         self.ids.nomeTurma.text = ''
         self.on_pre_enter()
 
-class CadastroMonitor(Screen): 
+class CadastroMonitor(Screen):
     def on_pre_enter(self):
         self.ids.box.clear_widgets()
 
@@ -110,11 +111,11 @@ class CadastroMonitor(Screen):
 
         except FileNotFoundError:
             monitores_cadastrados = []
-        
+
         for monitor in monitores_cadastrados:
             nome_monitor = Label(text=monitor, size_hint_y=None, height=40)
             self.ids.box.add_widget(nome_monitor)
-    
+
     def mostrar_popup(self, titulo, texto):
         msg=Popup(
             title = titulo,
@@ -134,26 +135,26 @@ class CadastroMonitor(Screen):
             arq_slvMonitor = openpyxl.Workbook()
             celula = arq_slvMonitor.active
             celula.append(['Nome'])
-        
+
         celula = arq_slvMonitor.active
-        
+
         if len(nome_aluno)>= 3 and len(nome_aluno) <= 80:
             celula.append([nome_aluno.upper()])
             self.ids.box.add_widget(Label(text=nome_aluno.upper(), size_hint_y=None, height=40))
 
         else:
             self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Você digitou um nome inválido \nou deixou o campo vazio. \nDigite novamente!')
-        
+
         arq_slvMonitor.save('cadastro_monitores.xlsx')
 
-        self.ids.nomeAluno.text = ''  
-    
-    def remover_monitor(self, nome_aluno):  
+        self.ids.nomeAluno.text = ''
+
+    def remover_monitor(self, nome_aluno):
         try:
             arq_slvMonitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
         except FileNotFoundError:
             return 'Não há nomes cadastrados para serem excluídos!'
-        
+
         celula = arq_slvMonitor.active
         for row in celula.iter_rows(min_row=2, max_col=1):
             if row[0].value == nome_aluno.upper():
@@ -165,8 +166,8 @@ class CadastroMonitor(Screen):
 
         arq_slvMonitor.save('cadastro_monitores.xlsx')
 
-        
-        self.ids.nomeAluno.text = ''  
+
+        self.ids.nomeAluno.text = ''
         self.on_pre_enter()
 
 class CadastroOrdem(Screen):
@@ -179,13 +180,13 @@ class CadastroOrdem(Screen):
             turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
         except FileNotFoundError:
             turmas_cadastradas = []
-        
+
         num_turmas = len(turmas_cadastradas)
         dias_semana = ['Turma','Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
 
         for dia in dias_semana:
             self.ids.grid.add_widget(Label(
-                text=dia, 
+                text=dia,
                 size_hint_y=None,
                 height= 40))
 
@@ -196,7 +197,7 @@ class CadastroOrdem(Screen):
                 height=40))
             for dia in dias_semana[1:]:
                     self.ids.grid.add_widget(Spinner(
-                        text='Escolha', 
+                        text='Escolha',
                         values=[str(i) for i in range(1, num_turmas + 1)],
                         size_hint=(None, None),
                         size=(150, 40),
@@ -209,10 +210,10 @@ class CadastroOrdem(Screen):
 
         divisao_grids = self.ids.grid.children
         num_turmas = len(divisao_grids) // 6
-        
+
         for i in range(num_turmas):
-            turma_index = i * 6 + 5 
-            turma = divisao_grids[turma_index].text 
+            turma_index = i * 6 + 5
+            turma = divisao_grids[turma_index].text
             escolhas = []
 
             if not turma == 'Turma':
@@ -222,13 +223,13 @@ class CadastroOrdem(Screen):
                         escolhas.append(int(valor))
 
             celula.append([turma] + escolhas)
-        
+
         arq_slvDataOrdem.save('cadastro_OrdemTurmas.xlsx')
 
         for i in range(len(divisao_grids)):
             if isinstance(divisao_grids[i], Spinner):
                 divisao_grids[i].text = 'Escolha'
-    
+
     def on_leave(self):
         Window.size = (360, 640)
 
@@ -249,7 +250,7 @@ class RegistroDia(Screen):
 
     def on_spinner_select(self, spinner, text):
         self.ordenar_turmas_dia(text)
-    
+
     def ordenar_turmas_dia(self, dia_semana):
         self.ids.grid.clear_widgets()
         try:
@@ -264,25 +265,25 @@ class RegistroDia(Screen):
 
         except FileNotFoundError:
             ordem_turmas = {}
-        
+
         ordem_turmas = {turma: ordem for turma, ordem in ordem_turmas.items() if ordem is not None}
-        
+
         turmas_ordenadas = sorted(ordem_turmas.items(), key=lambda x: x[1])
-        
+
         for ordem, (turma, _) in enumerate(turmas_ordenadas, start=1):
             form_turma = f'{ordem}º - {turma}'
-            self.ids.grid.add_widget(Label(text=form_turma, 
-                                           size_hint_y=None, 
+            self.ids.grid.add_widget(Label(text=form_turma,
+                                           size_hint_y=None,
                                            height=40))
-            self.ids.grid.add_widget(TextInput(hint_text='Meninos', 
-                                               size_hint_y=None, 
+            self.ids.grid.add_widget(TextInput(hint_text='Meninos',
+                                               size_hint_y=None,
                                                height=40,
                                                multiline=False))
-            self.ids.grid.add_widget(TextInput(hint_text='Meninas', 
-                                               size_hint_y=None, 
+            self.ids.grid.add_widget(TextInput(hint_text='Meninas',
+                                               size_hint_y=None,
                                                height=40,
                                                multiline=False))
-    
+
     def mostrar_popup(self, titulo, texto):
         msg=Popup(
             title = titulo,
@@ -293,7 +294,7 @@ class RegistroDia(Screen):
         )
 
         msg.open()
-    
+
     def salvar_frequencia(self, data, almoco, monitor, dia_semana):
         try:
             arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
@@ -311,19 +312,19 @@ class RegistroDia(Screen):
 
         divisao_grids = self.ids.grid.children
         num_turmas = len(divisao_grids) // 3
-        
+
         for trm in range(num_turmas):
-            turma_index = trm * 3 + 2 
-            turma = divisao_grids[turma_index].text[5:] 
+            turma_index = trm * 3 + 2
+            turma = divisao_grids[turma_index].text[5:]
 
             if not re.match(r'^\d{2}/\d{2}/\d{4}$', data):
                 self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Você digitou uma data inválida ou \ndeixou o espaço em branco. \nUse apenas números e barra (/) como \no formato informado DD/MM/AAAA.')
                 return
-            
+
             if len(almoco) < 7 or len(almoco) > 50:
                 self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Você digitou um almoço inválido \nou deixou o espaço em branco. \nDigite como informado no exemplo.')
                 return
-            
+
             if monitor == 'Escolha Monitor':
                 self.mostrar_popup('Erro!', 'Nenhum Monitor foi escolhido. \nSelecione um Monitor.')
                 return
@@ -357,7 +358,85 @@ class RegistroDia(Screen):
         self.mostrar_popup('Sucesso!', 'Frequência salva com sucesso.')
 
 class Relatorio(Screen):
-    pass
+    def on_pre_enter(self):
+        self.ids.box.clear_widgets()
+        self.ids.box2.clear_widgets()
+        self.grafico_sexo()
+        self.grafico_qtdeDia()
+
+    def mostrar_popup(self, titulo, texto):
+        msg = Popup(
+            title=titulo,
+            content=Label(text=texto),
+            size_hint=(None, None),
+            size=(300, 200),
+            padding=(10, 10, 10, 10)
+        )
+        msg.open()
+
+    def grafico_sexo(self):
+        try:
+            arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
+            celula_freq = arq_slvFrequencia.active
+        except FileNotFoundError:
+            self.mostrar_popup('Erro!', 'Arquivo de frequência não encontrado.')
+            return
+
+        total_meninas = 0
+        total_meninos = 0
+        for col in celula_freq.iter_rows(min_row=2, values_only=True):
+            meninos = col[5]
+            meninas = col[6]
+            if isinstance(meninos, int):
+                total_meninas += meninas
+            if isinstance(meninas, int):
+                total_meninos += meninos
+
+        sexo = ['Meninos', 'Meninas']
+        dados = [total_meninas/7, total_meninos/7]
+        cor = ['#87CEEB','#6A5ACD']
+
+        fig, ax = plt.subplots(figsize=(5, 5))
+        #ax.set_title('Quantidade que almoçou por sexo')
+
+        def func(pct, allvals):
+            absolute = int(pct/100.*np.sum(allvals))
+            return '{:.1f}%\n{:d} pessoas'.format(pct, absolute)
+        
+        wedges, texts, autotexts = ax.pie(dados, 
+                                  autopct=lambda pct: func(pct, dados), 
+                                  colors=cor)
+
+        ax.legend(wedges, sexo, 
+                    title='Sexo', 
+                    loc='center left', 
+                    bbox_to_anchor=(-0.15, 0, 0, 0),
+                    prop = {'size': 8})
+        
+        plt.setp(autotexts, size = 8)
+        ax.axis('equal')
+
+        self.ids.box.clear_widgets()
+        canvas = FigureCanvasKivyAgg(fig)
+        canvas.size = (300, 300)
+        canvas.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
+        self.ids.box.add_widget(canvas)
+    
+    def grafico_qtdeDia(self):
+        dia_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
+        qtde_pessoas = [300, 400, 345, 328, 430]
+
+        fig, ax = plt.subplots(figsize=(5,5))
+        
+        ax.bar(dia_semana, qtde_pessoas, color='purple')
+        ax.set_xticks(dia_semana)
+        ax.tick_params(axis='both', which='major', labelsize=8)
+
+        self.ids.box2.clear_widgets()
+        canvas = FigureCanvasKivyAgg(fig)
+        canvas.size = (300, 300)
+        canvas.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
+        self.ids.box2.add_widget(canvas)
 
 class Mofome(App):
     def build(self):

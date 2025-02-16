@@ -178,9 +178,11 @@ class CadastroOrdem(Screen):
             arq_slvTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
             celulas = arq_slvTurma.active
             turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
+                        
         except FileNotFoundError:
             turmas_cadastradas = []
-
+            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de Cadastro de Turmas não \nencontrado. Cadastre os dados \nfaltantes nas suas sessões primeiro.')
+        
         num_turmas = len(turmas_cadastradas)
         dias_semana = ['Turma','Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
 
@@ -230,23 +232,37 @@ class CadastroOrdem(Screen):
             if isinstance(divisao_grids[i], Spinner):
                 divisao_grids[i].text = 'Escolha'
 
+    def mostrar_popup(self, titulo, texto):
+        msg=Popup(
+            title = titulo,
+            content = Label(text=texto),
+            size_hint=(None, None),
+            size = (300, 200),
+            padding=(10, 10, 10, 10)
+        )
+
+        msg.open()
+    
     def on_leave(self):
         Window.size = (360, 640)
 
 class RegistroDia(Screen):
     def on_pre_enter(self):
-        tab_Monitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
-        celulas = tab_Monitor.active
-        monitores_cadastrados = []
-        for celula in celulas['A'][1:]:
-            nome = celula.value.split(" ")
-            nome1 = nome[0]
-            nome2 = nome[-1]
-            monitores_cadastrados.append(str(nome1+' '+nome2))
+        try:
+            tab_Monitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
+            celulas = tab_Monitor.active
+            monitores_cadastrados = []
+            for celula in celulas['A'][1:]:
+                nome = celula.value.split(" ")
+                nome1 = nome[0]
+                nome2 = nome[-1]
+                monitores_cadastrados.append(str(nome1+' '+nome2))
 
-        self.ids.spMonitor.values = monitores_cadastrados
-        self.ids.spDiaSemana.bind(text=self.on_spinner_select)
-        self.ordenar_turmas_dia(self.ids.spDiaSemana.text)
+            self.ids.spMonitor.values = monitores_cadastrados
+            self.ids.spDiaSemana.bind(text=self.on_spinner_select)
+            self.ordenar_turmas_dia(self.ids.spDiaSemana.text)
+        except FileNotFoundError:
+            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de Cadastro de Turmas \nou Monitores não encontrado. \nCadastre os dados faltantes \nnas suas sessões primeiro.')
 
     def on_spinner_select(self, spinner, text):
         self.ordenar_turmas_dia(text)
@@ -264,7 +280,7 @@ class RegistroDia(Screen):
                 ordem_turmas[celula[0].value] = celula[dia_semana_index].value
 
         except FileNotFoundError:
-            ordem_turmas = {}
+            ordem_turmas = {} 
 
         ordem_turmas = {turma: ordem for turma, ordem in ordem_turmas.items() if ordem is not None}
 
@@ -305,7 +321,7 @@ class RegistroDia(Screen):
             arq_slvFrequencia = openpyxl.Workbook()
             celula_freq = arq_slvFrequencia.active
             celula_freq.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana', 'Turmas', 'Meninos', 'Meninas'])
-            self.mostrar_popup('Erro!', 'Arquivo de cadastro de turmas \nnão encontrado.')
+            self.mostrar_popup('Arquivo não encontrado!', 'Não é possível salvar a frequência. \nArquivo de Cadastro de Turmas \n e/ou Monitores não encontrado.')
             return
 
         celula_freq = arq_slvFrequencia.active
@@ -379,7 +395,7 @@ class Relatorio(Screen):
             arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
             celula_freq = arq_slvFrequencia.active
         except FileNotFoundError:
-            self.mostrar_popup('Erro!', 'Arquivo de frequência não encontrado.')
+            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de frequência não encontrado. \nCadastre a frequência primeiro.')
             return
 
         total_meninas = 0

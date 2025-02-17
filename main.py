@@ -452,7 +452,6 @@ class Relatorio(Screen):
             arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
             celula_freq = arq_slvFrequencia.active
         except FileNotFoundError:
-            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de frequência não encontrado. \nCadastre a frequência primeiro.')
             return
 
         dias_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
@@ -497,7 +496,6 @@ class Relatorio(Screen):
             arq_turma = openpyxl.load_workbook('cadastro_turmas.xlsx')
             celulas_turma = arq_turma.active
         except FileNotFoundError:
-            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de frequência não encontrado. \nCadastre a frequência primeiro.')
             return
 
         turmas_alunos = {}

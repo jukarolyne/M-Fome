@@ -25,7 +25,10 @@
             Rectangle:
                 size: self.size
                 pos: self.pos
-        
+        Image:
+            source: 'logo_mofome.png'
+            size_hint: (1, 1)
+
         Button:
             text: 'Cadastro'
             on_release: app.root.current = 'cadastro'
@@ -45,6 +48,8 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Cadastro'
+                    app_icon: 'logo.png'
+                    app_icon_width: '300dp'
                     on_release: app.root.current = 'menu'
                 ActionButton:
                     text: 'Sair'
@@ -86,6 +91,8 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Cadastro de Turmas'
+                    app_icon: 'logo.png'
+                    app_icon_width: '300dp'
                     on_release: app.root.current = 'cadastro'
                 ActionButton:
                     text: 'Sair'
@@ -161,6 +168,8 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Cadastro de Monitor'
+                    app_icon: 'logo.png'
+                    app_icon_width: '300dp'
                     on_release: app.root.current = 'cadastro'
                 ActionButton:
                     text: 'Sair'
@@ -223,6 +232,8 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Ordem da Fila'
+                    app_icon: 'logo.png'
+                    app_icon_width: '300dp'
                     on_release: app.root.current = 'menu'
                 ActionButton:
                     text: 'Sair'
@@ -262,6 +273,8 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Registro do Dia'
+                    app_icon: 'logo.png'
+                    app_icon_width: '300dp'
                     on_release: app.root.current = 'menu'
                 ActionButton:
                     text: 'Sair'
@@ -366,11 +379,12 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Relatório Semanal'
+                    app_icon: 'logo.png'
+                    app_icon_width: '300dp'
                     on_release: app.root.current = 'menu'
                 ActionButton:
                     text: 'Sair'
                     on_release: app.stop()
-
         BoxLayout:
             orientation:'vertical'
             padding: 20
@@ -385,21 +399,22 @@
             BoxLayout:
                 id: box
                 orientation: 'vertical'
-                #padding: (10, 5, 10, 5)
-                #spacing: 2
                 size: root.width, root.height
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
             
             BoxLayout:
-                id: box2
-                orientation: 'vertical'
-                #padding: 10
-                #spacing: 10
-                size: root.width, root.height
-                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                orientation:'horizontal'
+                spacing: 5
+                BoxLayout:
+                    orientation: 'vertical'
+                    id:box3
+                    size: root.width, root.height
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
+                BoxLayout:
+                    orientation: 'vertical'
+                    id:box4
+                    size: root.width, root.height
+                    pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+
             
-            GridLayout:
-                cols: 2  
-                spacing: 10, 10
-                size_hint_y: None
-                height: self.minimum_height

@@ -11,6 +11,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy_garden.matplotlib import FigureCanvasKivyAgg
 from kivy.core.window import Window
+from kivy.uix.image import Image
 
 class Gerenciador(ScreenManager):
     pass
@@ -321,8 +322,13 @@ class RegistroDia(Screen):
             arq_slvFrequencia = openpyxl.Workbook()
             celula_freq = arq_slvFrequencia.active
             celula_freq.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana', 'Turmas', 'Meninos', 'Meninas'])
-            self.mostrar_popup('Arquivo não encontrado!', 'Não é possível salvar a frequência. \nArquivo de Cadastro de Turmas \n e/ou Monitores não encontrado.')
-            return
+            arq_turma = openpyxl.load_workbook('cadastro_turmas.xlsx')
+            celulas_turma = arq_turma.active
+            turmas_cadastradas = {celula[0].value: celula[1].value for celula in celulas_turma.iter_rows(min_row=2, max_col=2)}
+            # arq_turma == None
+            # if not arq_turma:
+            #     self.mostrar_popup('Arquivo não encontrado!', 'Não é possível salvar a frequência. \nArquivo de Cadastro de Turmas \n e/ou Monitores não encontrado.')
+            #     return
 
         celula_freq = arq_slvFrequencia.active
 
@@ -376,9 +382,11 @@ class RegistroDia(Screen):
 class Relatorio(Screen):
     def on_pre_enter(self):
         self.ids.box.clear_widgets()
-        self.ids.box2.clear_widgets()
+        self.ids.box3.clear_widgets()
+        self.ids.box4.clear_widgets()
         self.grafico_sexo()
-        self.grafico_qtdeDia()
+        self.tab_min_max()
+        self.tab_ranking()
 
     def mostrar_popup(self, titulo, texto):
         msg = Popup(
@@ -410,15 +418,16 @@ class Relatorio(Screen):
 
         sexo = ['Meninos', 'Meninas']
         dados = [total_meninas/7, total_meninos/7]
-        cor = ['#87CEEB','#6A5ACD']
+        cor = ['#7B68EE','#DDA0DD']
 
-        fig, ax = plt.subplots(figsize=(5, 5))
-        #ax.set_title('Quantidade que almoçou por sexo')
+        fig, ax = plt.subplots(figsize=(4, 1.5))
+        ax.set_title('QUANTIDADE QUE ALMOÇOU POR SEXO', fontsize='8', color='#ffffff', fontweight='bold')
 
         def func(pct, allvals):
             absolute = int(pct/100.*np.sum(allvals))
             return '{:.1f}%\n{:d} pessoas'.format(pct, absolute)
         
+        fig.patch.set_facecolor('#B36699')
         wedges, texts, autotexts = ax.pie(dados, 
                                   autopct=lambda pct: func(pct, dados), 
                                   colors=cor)
@@ -438,25 +447,98 @@ class Relatorio(Screen):
         canvas.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
         self.ids.box.add_widget(canvas)
     
-    def grafico_qtdeDia(self):
-        dia_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
-        qtde_pessoas = [300, 400, 345, 328, 430]
+    def tab_min_max(self):
+        try:
+            arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
+            celula_freq = arq_slvFrequencia.active
+        except FileNotFoundError:
+            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de frequência não encontrado. \nCadastre a frequência primeiro.')
+            return
 
-        fig, ax = plt.subplots(figsize=(5,5))
-        
-        ax.bar(dia_semana, qtde_pessoas, color='purple')
-        ax.set_xticks(dia_semana)
-        ax.tick_params(axis='both', which='major', labelsize=8)
+        dias_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
+        qtde_pessoas = {dia: 0 for dia in dias_semana}
 
-        self.ids.box2.clear_widgets()
+        for row in celula_freq.iter_rows(min_row=2, values_only=True):
+            dia_semana = row[3]
+            meninos = row[5]
+            meninas = row[6]
+            if dia_semana in qtde_pessoas:
+                qtde_pessoas[dia_semana] += meninos + meninas
+
+        max_dia = max(qtde_pessoas, key=qtde_pessoas.get)
+        min_dia = min(qtde_pessoas, key=qtde_pessoas.get)
+
+        dados = [
+            ('Dia', 'Qtde'),
+            (max_dia, qtde_pessoas[max_dia]),
+            (min_dia, qtde_pessoas[min_dia])
+        ]
+
+        fig, ax = plt.subplots(figsize=(3, 1.5))
+        ax.axis('tight')
+        ax.axis('off')
+        ax.set_title('MÍN E MÁX DA SEMANA', fontsize=8, color='#ffffff', fontweight='bold')
+        fig.patch.set_facecolor('#B36699')
+        table = ax.table(cellText=[linha for linha in dados[1:]],
+                         colLabels=dados[0],
+                         cellLoc='center',
+                         loc='center')
+
+        self.ids.box3.clear_widgets()
         canvas = FigureCanvasKivyAgg(fig)
         canvas.size = (300, 300)
         canvas.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
-        self.ids.box2.add_widget(canvas)
+        self.ids.box3.add_widget(canvas)
+
+    def tab_ranking(self):
+        try:
+            arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
+            celula_freq = arq_slvFrequencia.active
+            arq_turma = openpyxl.load_workbook('cadastro_turmas.xlsx')
+            celulas_turma = arq_turma.active
+        except FileNotFoundError:
+            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de frequência não encontrado. \nCadastre a frequência primeiro.')
+            return
+
+        turmas_alunos = {}
+        turmas_totais = {celula[0].value: celula[1].value for celula in celulas_turma.iter_rows(min_row=2, max_col=2)}
+
+        for row in celula_freq.iter_rows(min_row=2, values_only=True):
+            turma = row[4]
+            meninos = row[5]
+            meninas = row[6]
+            total_alunos = meninos + meninas
+
+            if turma in turmas_alunos:
+                turmas_alunos[turma] = max(turmas_alunos[turma], total_alunos)
+            else:
+                turmas_alunos[turma] = total_alunos
+
+        turmas_porcentagem = {turma: (alunos / turmas_totais[turma])*100 for turma, alunos in turmas_alunos.items() if turma in turmas_totais}
+        turmas_ordenadas = sorted(turmas_porcentagem.items(), key=lambda x: x[1], reverse=True)[:3]
+
+        dados = [('Turma', '% Alunos')] + [(turma, f'{porcentagem:.2f}%') for turma, porcentagem in turmas_ordenadas]
+
+        fig, ax = plt.subplots(figsize=(5, 1.5))
+        ax.set_title('RANKING DAS TURMAS', fontsize=8, color='#ffffff', fontweight='bold')
+        ax.axis('tight')
+        ax.axis('off')
+        fig.patch.set_facecolor('#B36699')
+        table = ax.table(cellText=[linha for linha in dados[1:]],
+                         colLabels=dados[0],
+                         cellLoc='center',
+                         loc='center')
+
+        self.ids.box4.clear_widgets()
+        canvas = FigureCanvasKivyAgg(fig)
+        canvas.size = (300, 300) 
+        canvas.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
+        self.ids.box4.add_widget(canvas)
 
 class Mofome(App):
     def build(self):
         Window.size = (360, 640)
+        Window.set_icon('logo.png')
         return Gerenciador()
 
 if __name__ == '__main__':

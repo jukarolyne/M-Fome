@@ -384,9 +384,15 @@ class Relatorio(Screen):
         self.ids.box.clear_widgets()
         self.ids.box3.clear_widgets()
         self.ids.box4.clear_widgets()
-        self.grafico_sexo()
-        self.tab_min_max()
-        self.tab_ranking()
+        self.carregar_dados()
+    
+    def carregar_dados(self):
+        try:
+            self.grafico_sexo()
+            self.tab_min_max()
+            self.tab_ranking()
+        except Exception as e:
+            self.mostrar_popup('Erro ao carregar dados', str(e))
 
     def mostrar_popup(self, titulo, texto):
         msg = Popup(
@@ -425,7 +431,7 @@ class Relatorio(Screen):
 
         def func(pct, allvals):
             absolute = int(pct/100.*np.sum(allvals))
-            return '{:.1f}%\n{:d} pessoas'.format(pct, absolute)
+            return '{:.1f}%'.format(pct, absolute)
         
         fig.patch.set_facecolor('#B36699')
         wedges, texts, autotexts = ax.pie(dados, 

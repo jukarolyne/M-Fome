@@ -1,7 +1,7 @@
 import openpyxl
 import matplotlib.pyplot as plt
 import numpy as np
-import re
+from datetime import datetime, date
 from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
@@ -255,51 +255,41 @@ class RegistroDia(Screen):
             monitores_cadastrados = []
             for celula in celulas['A'][1:]:
                 nome = celula.value.split(" ")
-                nome1 = nome[0]
-                nome2 = nome[-1]
-                monitores_cadastrados.append(str(nome1+' '+nome2))
-
+                monitores_cadastrados.append(str(nome[0]+' '+nome[-1]))
+            
+            self.data_dia = datetime.now()
+            self.ids.datetimer.text = f"{self.data_dia.strftime('%d')}/{self.data_dia.strftime('%m')}/{self.data_dia.strftime('%y')}"
             self.ids.spMonitor.values = monitores_cadastrados
-            self.ids.spDiaSemana.bind(text=self.on_spinner_select)
-            self.ordenar_turmas_dia(self.ids.spDiaSemana.text)
+            self.ordenar_turmas_dia()
+
         except FileNotFoundError:
             self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de Cadastro de Turmas \nou Monitores não encontrado. \nCadastre os dados faltantes \nnas suas sessões primeiro.')
 
-    def on_spinner_select(self, spinner, text):
-        self.ordenar_turmas_dia(text)
-
-    def ordenar_turmas_dia(self, dia_semana):
+    def ordenar_turmas_dia(self):
         self.ids.grid.clear_widgets()
         try:
             arq_slvOrdem = openpyxl.load_workbook('cadastro_OrdemTurmas.xlsx')
             celulas = arq_slvOrdem.active
-            dias_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
-            dia_semana_index = dias_semana.index(dia_semana) + 1  # +1 porque a primeira coluna é 'Turma'
-
+            num = date.today().weekday()
+            dias_semana = ('Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo')
+            self.ids.diaSemana.text = dias_semana[num]
+            dia_semana_index = num + 1  #pega pelo numero do dia da semana
             ordem_turmas = {}
             for celula in celulas.iter_rows(min_row=2):
                 ordem_turmas[celula[0].value] = celula[dia_semana_index].value
 
         except FileNotFoundError:
-            ordem_turmas = {} 
+            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de Cadastro de Ordem \nnão encontrado. Cadastre os \ndados faltantes nas suas sessões \nprimeiro.')
 
         ordem_turmas = {turma: ordem for turma, ordem in ordem_turmas.items() if ordem is not None}
 
         turmas_ordenadas = sorted(ordem_turmas.items(), key=lambda x: x[1])
 
-        for ordem, (turma, _) in enumerate(turmas_ordenadas, start=1):
+        for ordem, (turma,_) in enumerate(turmas_ordenadas, start=1):
             form_turma = f'{ordem}º - {turma}'
-            self.ids.grid.add_widget(Label(text=form_turma,
-                                           size_hint_y=None,
-                                           height=40))
-            self.ids.grid.add_widget(TextInput(hint_text='Meninos',
-                                               size_hint_y=None,
-                                               height=40,
-                                               multiline=False))
-            self.ids.grid.add_widget(TextInput(hint_text='Meninas',
-                                               size_hint_y=None,
-                                               height=40,
-                                               multiline=False))
+            self.ids.grid.add_widget(Label(text=form_turma, size_hint_y=None, height=40))
+            self.ids.grid.add_widget(TextInput(hint_text='Meninos', size_hint_y=None, height=40, multiline=False))
+            self.ids.grid.add_widget(TextInput(hint_text='Meninas', size_hint_y=None, height=40, multiline=False))
 
     def mostrar_popup(self, titulo, texto):
         msg=Popup(
@@ -317,18 +307,22 @@ class RegistroDia(Screen):
             arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
             arq_turma = openpyxl.load_workbook('cadastro_turmas.xlsx')
             celulas_turma = arq_turma.active
-            turmas_cadastradas = {celula[0].value: celula[1].value for celula in celulas_turma.iter_rows(min_row=2, max_col=2)}
+
+            turmas_cadastradas = {}
+            for celula in celulas_turma.iter_rows(min_row=2, max_col=2):
+                turmas_cadastradas[celula[0].value] = celula[1].value
+
         except FileNotFoundError:
             arq_slvFrequencia = openpyxl.Workbook()
             celula_freq = arq_slvFrequencia.active
             celula_freq.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana', 'Turmas', 'Meninos', 'Meninas'])
             arq_turma = openpyxl.load_workbook('cadastro_turmas.xlsx')
             celulas_turma = arq_turma.active
-            turmas_cadastradas = {celula[0].value: celula[1].value for celula in celulas_turma.iter_rows(min_row=2, max_col=2)}
-            # arq_turma == None
-            # if not arq_turma:
-            #     self.mostrar_popup('Arquivo não encontrado!', 'Não é possível salvar a frequência. \nArquivo de Cadastro de Turmas \n e/ou Monitores não encontrado.')
-            #     return
+            
+            turmas_cadastradas = {}
+            for celula in celulas_turma.iter_rows(min_row=2, max_col=2):
+                turmas_cadastradas[celula[0].value] = celula[1].value
+
 
         celula_freq = arq_slvFrequencia.active
 
@@ -338,10 +332,6 @@ class RegistroDia(Screen):
         for trm in range(num_turmas):
             turma_index = trm * 3 + 2
             turma = divisao_grids[turma_index].text[5:]
-
-            if not re.match(r'^\d{2}/\d{2}/\d{4}$', data):
-                self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Você digitou uma data inválida ou \ndeixou o espaço em branco. \nUse apenas números e barra (/) como \no formato informado DD/MM/AAAA.')
-                return
 
             if len(almoco) < 7 or len(almoco) > 50:
                 self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Você digitou um almoço inválido \nou deixou o espaço em branco. \nDigite como informado no exemplo.')
@@ -368,10 +358,8 @@ class RegistroDia(Screen):
 
             celula_freq.append([data, almoco, monitor, dia_semana, turma, quantidade_meninos, quantidade_meninas])
 
-        self.ids.data.text = ''
         self.ids.almoco.text = ''
         self.ids.spMonitor.text = 'Escolha Monitor'
-        self.ids.spDiaSemana.text = 'Segunda'
         for i in range(len(divisao_grids)):
             if isinstance(divisao_grids[i], TextInput):
                 divisao_grids[i].text = ''
@@ -384,6 +372,9 @@ class Relatorio(Screen):
         self.ids.box.clear_widgets()
         self.ids.box3.clear_widgets()
         self.ids.box4.clear_widgets()
+        self.carregar_dados()
+
+    def on_enter(self):
         self.carregar_dados()
     
     def carregar_dados(self):
@@ -482,12 +473,15 @@ class Relatorio(Screen):
         fig, ax = plt.subplots(figsize=(3, 1.5))
         ax.axis('tight')
         ax.axis('off')
-        ax.set_title('MÍN E MÁX DA SEMANA', fontsize=8, color='#ffffff', fontweight='bold')
+        ax.set_title('MÍN E MÁX DA SEMANA', fontsize=8, color='#ffffff', fontweight='bold', pad=1)
         fig.patch.set_facecolor('#B36699')
         table = ax.table(cellText=[linha for linha in dados[1:]],
                          colLabels=dados[0],
                          cellLoc='center',
                          loc='center')
+        
+        table.auto_set_font_size(False)
+        table.set_fontsize(8.5)
 
         self.ids.box3.clear_widgets()
         canvas = FigureCanvasKivyAgg(fig)
@@ -504,9 +498,11 @@ class Relatorio(Screen):
         except FileNotFoundError:
             return
 
-        turmas_alunos = {}
-        turmas_totais = {celula[0].value: celula[1].value for celula in celulas_turma.iter_rows(min_row=2, max_col=2)}
+        turmas_totais = {}
+        for celula in celulas_turma.iter_rows(min_row=2, max_col=2):
+            turmas_totais[celula[0].value] = celula[1].value
 
+        turmas_alunos = {}
         for row in celula_freq.iter_rows(min_row=2, values_only=True):
             turma = row[4]
             meninos = row[5]
@@ -518,20 +514,27 @@ class Relatorio(Screen):
             else:
                 turmas_alunos[turma] = total_alunos
 
-        turmas_porcentagem = {turma: (alunos / turmas_totais[turma])*100 for turma, alunos in turmas_alunos.items() if turma in turmas_totais}
+        turmas_porcentagem = {}
+        for turma, alunos in turmas_alunos.items():
+            if turma in turmas_totais:
+                turmas_porcentagem[turma] = (alunos / turmas_totais[turma]) * 100
+
         turmas_ordenadas = sorted(turmas_porcentagem.items(), key=lambda x: x[1], reverse=True)[:3]
 
         dados = [('Turma', '% Alunos')] + [(turma, f'{porcentagem:.2f}%') for turma, porcentagem in turmas_ordenadas]
 
-        fig, ax = plt.subplots(figsize=(5, 1.5))
-        ax.set_title('RANKING DAS TURMAS', fontsize=8, color='#ffffff', fontweight='bold')
+        fig, ax = plt.subplots(figsize=(3, 1.5))
+        ax.set_title('RANKING DAS TURMAS', fontsize=8, color='#ffffff', fontweight='bold', pad=1)
         ax.axis('tight')
         ax.axis('off')
         fig.patch.set_facecolor('#B36699')
-        table = ax.table(cellText=[linha for linha in dados[1:]],
+        table = ax.table(cellText=[linha for linha in dados[1:]], 
                          colLabels=dados[0],
                          cellLoc='center',
                          loc='center')
+
+        table.auto_set_font_size(False)
+        table.set_fontsize(8.5)
 
         self.ids.box4.clear_widgets()
         canvas = FigureCanvasKivyAgg(fig)
@@ -541,7 +544,7 @@ class Relatorio(Screen):
 
 class Mofome(App):
     def build(self):
-        Window.size = (360, 640)
+        Window.size = (370, 640)
         Window.set_icon('logo.png')
         return Gerenciador()
 

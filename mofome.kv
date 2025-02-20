@@ -26,8 +26,10 @@
                 size: self.size
                 pos: self.pos
         Image:
-            source: 'logo_mofome.png'
+            source: 'logo_mofome4.png'
             size_hint: (1, 1)
+            size_hint_y: None
+            height: 150
 
         Button:
             text: 'Cadastro'
@@ -48,7 +50,7 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Cadastro'
-                    app_icon: 'logo.png'
+                    app_icon: 'logo2.png'
                     app_icon_width: '300dp'
                     on_release: app.root.current = 'menu'
                 ActionButton:
@@ -91,7 +93,7 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Cadastro de Turmas'
-                    app_icon: 'logo.png'
+                    app_icon: 'logo2.png'
                     app_icon_width: '300dp'
                     on_release: app.root.current = 'cadastro'
                 ActionButton:
@@ -168,7 +170,7 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Cadastro de Monitor'
-                    app_icon: 'logo.png'
+                    app_icon: 'logo2.png'
                     app_icon_width: '300dp'
                     on_release: app.root.current = 'cadastro'
                 ActionButton:
@@ -232,7 +234,7 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Ordem da Fila'
-                    app_icon: 'logo.png'
+                    app_icon: 'logo2.png'
                     app_icon_width: '300dp'
                     on_release: app.root.current = 'menu'
                 ActionButton:
@@ -273,7 +275,7 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Registro do Dia'
-                    app_icon: 'logo.png'
+                    app_icon: 'logo2.png'
                     app_icon_width: '300dp'
                     on_release: app.root.current = 'menu'
                 ActionButton:
@@ -281,64 +283,72 @@
                     on_release: app.stop()
 
         BoxLayout:
-            orientation: 'vertical'
+            orientation: 'horizontal'
             padding: (20, 5, 20, 5)
             spacing: 5
+            size_hint_y: None
+            height: 100
             canvas:
                 Color:
                     rgba: [0.7,0.4,0.6,1]
                 Rectangle:
                     size: self.size
                     pos: self.pos
-                    
-            Label:
-                text: 'Data'
-            TextInput:
-                id: data
-                hint_text: 'ex: DD/MM/AAAA'
-                multiline: False
-                size_hint_y: None
-                height: 30
+            
+            BoxLayout:
+                orientation:'vertical'   
+                Label:
+                    text: 'Data'
+                    #size_hint_y: None
+                    #height: 30
+
+                Label:
+                    id:datetimer
+                    #size_hint_y: None
+                    #height: 30
+
+            BoxLayout:
+                orientation:'vertical'
+                Label:
+                    text:'Dia da Semana'
+
+                Label:
+                    id: diaSemana
+                    # size_hint_y: None
+                    # height: 30
+        
+        BoxLayout:
+            orientation:'vertical'
+            padding: (20, 10, 10, 10)
+            spacing: 15
+            size_hint_y: None
+            height: 200
+            canvas:
+                Color:
+                    rgba: [0.7,0.4,0.6,1]
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
 
             Label:
                 text:'Almoço do dia'
+                size_hint_y: None
+                height: 50
+
             TextInput:
                 id: almoco
                 hint_text: 'ex: feijão, arroz, frango e suco de acerola'
                 multiline: False
                 size_hint_y: None
                 height: 30
-            
-        BoxLayout:
-            orientation:'horizontal'
-            padding: (20, 10, 10, 10)
-            spacing: 5
-            size_hint_y: None
-            height: self.minimum_height
-            canvas:
-                Color:
-                    rgba: [0.7,0.4,0.6,1]
-                Rectangle:
-                    size: self.size
-                    pos: self.pos
-
-            Spinner:                    
-                id: spMonitor        
-                size_hint: None, None
-                size: 150, 50
-                pos_hint: {'center_x': 0.5}
-                pos_hint: {'center_y': 0.5}
-                text: 'Escolha Monitor'
-                values: 'selecionar'
 
             Spinner:
-                id: spDiaSemana
+                id: spMonitor
                 size_hint: None, None
                 size: 150, 50
-                pos_hint: {'center_x': 0.5}
-                pos_hint: {'center_y': 0.5}
-                text: 'Segunda'
-                values: ['Segunda','Terça', 'Quarta', 'Quinta', 'Sexta']
+                pos_hint: {'center_x': 0.5, 'center_y': 0.5}
+                text: 'Escolha Monitor'
+                values: 'selecionar'
             
         BoxLayout:
             orientation: 'vertical'
@@ -358,7 +368,7 @@
             ScrollView:
                 GridLayout:
                     id: grid
-                    cols: 3  
+                    cols: 3
                     spacing: 10, 10
                     size_hint_y: None
                     height: self.minimum_height
@@ -370,7 +380,7 @@
                 size_hint_x: None
                 width: 200
                 pos_hint: {'center_x': 0.5}
-                on_release: root.salvar_frequencia(data.text, almoco.text, spMonitor.text, spDiaSemana.text)
+                on_release: root.salvar_frequencia(datetimer.text, almoco.text, spMonitor.text, diaSemana.text)
 
 <Relatorio>:
     BoxLayout:
@@ -379,7 +389,7 @@
             ActionView:
                 ActionPrevious:
                     title: 'MóFome - Relatório Semanal'
-                    app_icon: 'logo.png'
+                    app_icon: 'logo2.png'
                     app_icon_width: '300dp'
                     on_release: app.root.current = 'menu'
                 ActionButton:

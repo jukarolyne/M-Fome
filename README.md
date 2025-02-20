@@ -14,15 +14,15 @@ Servir como gerenciador de fluxo de fila para a merenda escolar, organizando e c
 
 <h2>Funcionalidades</h2>
 Cadastro de Monitores, Turmas e Ordem na fila; Registro do Dia; Relatório da Semana.
-
-<strong>Cadastro de Monitores:</strong> Nome do aluno monitor, sendo relevante no registro do dia.<br>
+<p></p>
 <strong>Cadastro de Turmas:</strong> Nome da turma e quantidade de alunos, crucial tanto na tela de Cadastro de Ordem da Fila, como também no Registro do Dia e no Relatório da Semana.<br>
+<strong>Cadastro de Monitores:</strong> Nome do aluno monitor, sendo relevante no registro do dia.<br>
 <strong>Cadastro de Ordem na Fila:</strong> Ordena as turmas por dia da semana, importante no registro do dia por turma.<br>
 <strong>Registro do Dia:</strong> No registro do dia há a captura dos seguintes dados:<br>
-- Data
-- Dia da Semana
-- Almoço
-- Monitor
+- Data<br>
+- Dia da Semana<br>
+- Almoço<br>
+- Monitor<br>
 - Quantidade de alunos por turma e por sexo biológico <br>
 <p></p>
 <strong>Relatório da Semana:</strong>

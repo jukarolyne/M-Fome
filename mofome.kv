@@ -348,7 +348,6 @@
                 size: 150, 50
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
                 text: 'Escolha Monitor'
-                values: 'selecionar'
             
         BoxLayout:
             orientation: 'vertical'
@@ -407,7 +406,7 @@
                     pos: self.pos
 
             BoxLayout:
-                id: box
+                id: graficoSexo
                 orientation: 'vertical'
                 size: root.width, root.height
                 pos_hint: {'center_x': 0.5, 'center_y': 0.5}
@@ -417,13 +416,13 @@
                 spacing: 5
                 BoxLayout:
                     orientation: 'vertical'
-                    id:box3
+                    id:tabMinMax
                     size: root.width, root.height
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 
                 BoxLayout:
                     orientation: 'vertical'
-                    id:box4
+                    id:tabRanking
                     size: root.width, root.height
                     pos_hint: {'center_x': 0.5, 'center_y': 0.5}
 

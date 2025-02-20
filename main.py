@@ -1,7 +1,8 @@
 import openpyxl
+import os
 import matplotlib.pyplot as plt
 import numpy as np
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from kivy.app import App
 from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
@@ -71,9 +72,9 @@ class CadastroTurmas(Screen):
 
         elif ValueError:
             if qtde_alunos == '' or nome_turma == '':
-                self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Digite um valor válido. \nTurma deve no máximo 5 caracteres; \nQuantidade de Pessoas deve \nser de 1 a 99.')
+                self.mostrar_popup('Campo Vazio!', 'Digite um valor válido. \nTurma deve ter no máximo 10 \ncaracteres; \nQuantidade de Pessoas deve \nser de 1 a 99.')
             else:
-                self.mostrar_popup('Campo Vazio ou Valor Inválido!', 'Digite um valor válido. \nTurma deve no máximo 5 caracteres; \nQuantidade de Pessoas deve \nser de 1 a 99.')
+                self.mostrar_popup('Valor Inválido!', 'Digite um valor válido. \nTurma deve ter no máximo 10 \ncaracteres; \nQuantidade de Pessoas deve \nser de 1 a 99.')
 
         tab_slvDataTurma.save('cadastro_turmas.xlsx')
 
@@ -149,12 +150,13 @@ class CadastroMonitor(Screen):
         arq_slvMonitor.save('cadastro_monitores.xlsx')
 
         self.ids.nomeAluno.text = ''
+        self.on_pre_enter()
 
     def remover_monitor(self, nome_aluno):
         try:
             arq_slvMonitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
         except FileNotFoundError:
-            return 'Não há nomes cadastrados para serem excluídos!'
+            return 
 
         celula = arq_slvMonitor.active
         for row in celula.iter_rows(min_row=2, max_col=1):
@@ -166,7 +168,6 @@ class CadastroMonitor(Screen):
             self.mostrar_popup('Erro de Digitação!', 'Esse nome não existe. \nConfira os monitores cadastrados\nacima antes de remover.')
 
         arq_slvMonitor.save('cadastro_monitores.xlsx')
-
 
         self.ids.nomeAluno.text = ''
         self.on_pre_enter()
@@ -249,6 +250,14 @@ class CadastroOrdem(Screen):
 
 class RegistroDia(Screen):
     def on_pre_enter(self):
+        self.atualizar_monitores()
+        self.data_dia = datetime.now()
+        self.ids.datetimer.text = f"{self.data_dia.strftime('%d')}/{self.data_dia.strftime('%m')}/{self.data_dia.strftime('%Y')}"
+        num = date.today().weekday()
+        dias_semana = ('Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo')
+        self.ids.diaSemana.text = dias_semana[num]
+    
+    def atualizar_monitores(self):
         try:
             tab_Monitor = openpyxl.load_workbook('cadastro_monitores.xlsx')
             celulas = tab_Monitor.active
@@ -256,25 +265,20 @@ class RegistroDia(Screen):
             for celula in celulas['A'][1:]:
                 nome = celula.value.split(" ")
                 monitores_cadastrados.append(str(nome[0]+' '+nome[-1]))
-            
-            self.data_dia = datetime.now()
-            self.ids.datetimer.text = f"{self.data_dia.strftime('%d')}/{self.data_dia.strftime('%m')}/{self.data_dia.strftime('%y')}"
             self.ids.spMonitor.values = monitores_cadastrados
             self.ordenar_turmas_dia()
 
         except FileNotFoundError:
-            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de Cadastro de Turmas \nou Monitores não encontrado. \nCadastre os dados faltantes \nnas suas sessões primeiro.')
+            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de Cadastro de Monitores \nnão encontrado. Cadastre os \ndados faltantes nas suas sessões \nprimeiro.')
 
     def ordenar_turmas_dia(self):
         self.ids.grid.clear_widgets()
+        ordem_turmas = {}
         try:
             arq_slvOrdem = openpyxl.load_workbook('cadastro_OrdemTurmas.xlsx')
             celulas = arq_slvOrdem.active
             num = date.today().weekday()
-            dias_semana = ('Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo')
-            self.ids.diaSemana.text = dias_semana[num]
             dia_semana_index = num + 1  #pega pelo numero do dia da semana
-            ordem_turmas = {}
             for celula in celulas.iter_rows(min_row=2):
                 ordem_turmas[celula[0].value] = celula[dia_semana_index].value
 
@@ -304,25 +308,23 @@ class RegistroDia(Screen):
 
     def salvar_frequencia(self, data, almoco, monitor, dia_semana):
         try:
-            arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
             arq_turma = openpyxl.load_workbook('cadastro_turmas.xlsx')
+            arq_ordemTurmas = openpyxl.load_workbook('cadastro_OrdemTurmas.xlsx')
             celulas_turma = arq_turma.active
 
             turmas_cadastradas = {}
             for celula in celulas_turma.iter_rows(min_row=2, max_col=2):
                 turmas_cadastradas[celula[0].value] = celula[1].value
+        except FileNotFoundError:
+            self.mostrar_popup('Erro ao Salvar!', 'Não é possível salvar a Frequência. \nArquivo de Cadastro de Ordem não \nencontrado. Cadastre as turmas \ne suas respectivas ordens primeiro.')
+            return
 
+        try:
+            arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
         except FileNotFoundError:
             arq_slvFrequencia = openpyxl.Workbook()
             celula_freq = arq_slvFrequencia.active
             celula_freq.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana', 'Turmas', 'Meninos', 'Meninas'])
-            arq_turma = openpyxl.load_workbook('cadastro_turmas.xlsx')
-            celulas_turma = arq_turma.active
-            
-            turmas_cadastradas = {}
-            for celula in celulas_turma.iter_rows(min_row=2, max_col=2):
-                turmas_cadastradas[celula[0].value] = celula[1].value
-
 
         celula_freq = arq_slvFrequencia.active
 
@@ -369,9 +371,9 @@ class RegistroDia(Screen):
 
 class Relatorio(Screen):
     def on_pre_enter(self):
-        self.ids.box.clear_widgets()
-        self.ids.box3.clear_widgets()
-        self.ids.box4.clear_widgets()
+        self.ids.graficoSexo.clear_widgets()
+        self.ids.tabMinMax.clear_widgets()
+        self.ids.tabRanking.clear_widgets()
         self.carregar_dados()
 
     def on_enter(self):
@@ -379,9 +381,15 @@ class Relatorio(Screen):
     
     def carregar_dados(self):
         try:
-            self.grafico_sexo()
-            self.tab_min_max()
-            self.tab_ranking()
+            arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
+            celula_freq = arq_slvFrequencia.active
+        except FileNotFoundError:
+            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de frequência não encontrado. \nCadastre a frequência primeiro.')
+            return
+        try:
+            self.grafico_sexo(celula_freq)
+            self.tab_min_max(celula_freq)
+            self.tab_ranking(celula_freq)
         except Exception as e:
             self.mostrar_popup('Erro ao carregar dados', str(e))
 
@@ -395,26 +403,32 @@ class Relatorio(Screen):
         )
         msg.open()
 
-    def grafico_sexo(self):
-        try:
-            arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
-            celula_freq = arq_slvFrequencia.active
-        except FileNotFoundError:
-            self.mostrar_popup('Arquivo não encontrado!', 'Arquivo de frequência não encontrado. \nCadastre a frequência primeiro.')
-            return
-
+    def grafico_sexo(self, celula_freq):
         total_meninas = 0
         total_meninos = 0
+        turmas_contabilizadas = {dia: set() for dia in ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']}
+        hoje = datetime.now().date()
+        inicio_semana = hoje - timedelta(days=hoje.weekday())  # Início da semana (segunda-feira)
+        fim_semana = inicio_semana + timedelta(days=4)
         for col in celula_freq.iter_rows(min_row=2, values_only=True):
+            data = col[0]
+            dia_semana = col[3]
+            turma = col[4]
             meninos = col[5]
             meninas = col[6]
-            if isinstance(meninos, int):
-                total_meninas += meninas
-            if isinstance(meninas, int):
-                total_meninos += meninos
+
+            if isinstance(data, datetime):
+                data = data.date()
+
+            if inicio_semana <= data <= fim_semana and turma not in turmas_contabilizadas[dia_semana]:
+                turmas_contabilizadas[dia_semana].add(turma)
+                if isinstance(meninos, int):
+                    total_meninas += meninas
+                if isinstance(meninas, int):
+                    total_meninos += meninos
 
         sexo = ['Meninos', 'Meninas']
-        dados = [total_meninas/7, total_meninos/7]
+        dados = [total_meninas/5, total_meninos/5]
         cor = ['#7B68EE','#DDA0DD']
 
         fig, ax = plt.subplots(figsize=(4, 1.5))
@@ -438,35 +452,41 @@ class Relatorio(Screen):
         plt.setp(autotexts, size = 8)
         ax.axis('equal')
 
-        self.ids.box.clear_widgets()
+        self.ids.graficoSexo.clear_widgets()
         canvas = FigureCanvasKivyAgg(fig)
         canvas.size = (300, 300)
         canvas.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
-        self.ids.box.add_widget(canvas)
+        self.ids.graficoSexo.add_widget(canvas)
     
-    def tab_min_max(self):
-        try:
-            arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
-            celula_freq = arq_slvFrequencia.active
-        except FileNotFoundError:
-            return
-
+    def tab_min_max(self, celula_freq):
         dias_semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']
         qtde_pessoas = {dia: 0 for dia in dias_semana}
+        turmas_contabilizadas = {dia: set() for dia in dias_semana}
+        hoje = datetime.now().date()
+        inicio_semana = hoje - timedelta(days=hoje.weekday())  # Início da semana (segunda-feira)
+        fim_semana = inicio_semana + timedelta(days=4)
 
         for row in celula_freq.iter_rows(min_row=2, values_only=True):
+            data = row[0]
             dia_semana = row[3]
+            turma = row[4]
             meninos = row[5]
             meninas = row[6]
-            if dia_semana in qtde_pessoas:
-                qtde_pessoas[dia_semana] += meninos + meninas
+
+            if isinstance(data, datetime):
+                data = data.date()
+
+            if inicio_semana <= data <= fim_semana and turma not in turmas_contabilizadas[dia_semana]:
+                turmas_contabilizadas[dia_semana].add(turma)
+                if dia_semana in qtde_pessoas:
+                    qtde_pessoas[dia_semana] += meninos + meninas
 
         max_dia = max(qtde_pessoas, key=qtde_pessoas.get)
         min_dia = min(qtde_pessoas, key=qtde_pessoas.get)
 
         dados = [
             ('Dia', 'Qtde'),
-            (max_dia, qtde_pessoas[max_dia]),
+            (max_dia, qtde_pessoas[max_dia]), 
             (min_dia, qtde_pessoas[min_dia])
         ]
 
@@ -483,16 +503,14 @@ class Relatorio(Screen):
         table.auto_set_font_size(False)
         table.set_fontsize(8.5)
 
-        self.ids.box3.clear_widgets()
+        self.ids.tabMinMax.clear_widgets()
         canvas = FigureCanvasKivyAgg(fig)
         canvas.size = (300, 300)
         canvas.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
-        self.ids.box3.add_widget(canvas)
+        self.ids.tabMinMax.add_widget(canvas)
 
-    def tab_ranking(self):
+    def tab_ranking(self, celula_freq):
         try:
-            arq_slvFrequencia = openpyxl.load_workbook('frequencia.xlsx')
-            celula_freq = arq_slvFrequencia.active
             arq_turma = openpyxl.load_workbook('cadastro_turmas.xlsx')
             celulas_turma = arq_turma.active
         except FileNotFoundError:
@@ -536,15 +554,15 @@ class Relatorio(Screen):
         table.auto_set_font_size(False)
         table.set_fontsize(8.5)
 
-        self.ids.box4.clear_widgets()
+        self.ids.tabRanking.clear_widgets()
         canvas = FigureCanvasKivyAgg(fig)
         canvas.size = (300, 300) 
         canvas.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
-        self.ids.box4.add_widget(canvas)
+        self.ids.tabRanking.add_widget(canvas)
 
 class Mofome(App):
     def build(self):
-        Window.size = (370, 640)
+        Window.size = (369, 640)
         Window.set_icon('logo.png')
         return Gerenciador()
 

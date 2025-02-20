@@ -1,5 +1,4 @@
 import openpyxl
-import os
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime, date, timedelta
@@ -12,7 +11,6 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.popup import Popup
 from kivy_garden.matplotlib import FigureCanvasKivyAgg
 from kivy.core.window import Window
-from kivy.uix.image import Image
 
 class Gerenciador(ScreenManager):
     pass

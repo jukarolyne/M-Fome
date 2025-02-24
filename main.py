@@ -198,9 +198,8 @@ class CadastroOrdem(Screen):
             celula = arq_slvDataOrdem.active
             celula.append(['Turma', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta'])
 
-        for row in celula.iter_rows(min_row=2, max_row=celula.max_row):
-            for cell in row:
-                cell.value = None
+        while celula.max_row > 1:
+            celula.delete_rows(2, 1)
         
         divisao_grids = self.ids.grid.children[::-1]
         num_turmas = len(divisao_grids) // 6
@@ -314,11 +313,11 @@ class RegistroDia(Screen):
             celula_freq = arq_slvFrequencia.active
             celula_freq.append(['Data', 'Almoço', 'Monitor', 'Dia da Semana', 'Turmas', 'Meninos', 'Meninas'])
 
-        divisao_grids = self.ids.grid.children[::1]
+        divisao_grids = self.ids.grid.children
         num_turmas = len(divisao_grids) // 3
 
         for trm in range(num_turmas):
-            turma_index = trm * 3
+            turma_index = trm * 3 + 2
             turma = divisao_grids[turma_index].text[5:]
 
             if len(almoco) < 6 or len(almoco) > 50:
@@ -375,38 +374,48 @@ class Relatorio(Screen):
             return mostrar_popup('Arquivo não encontrado!', 'Arquivo de frequência não encontrado. \nCadastre a frequência primeiro.')
         
         try:
-            self.grafico_sexo(celula_freq)
             self.tab_min_max(celula_freq)
             self.tab_ranking(celula_freq)
+            self.grafico_sexo(celula_freq)
         except Exception as e:
-            mostrar_popup('Erro', f'Erro do tipo {e} ao carregar os dados.')
+            mostrar_popup('Erro', f'Erro do tipo \n{e} \nao carregar os dados.')
+            print(e)
 
     def grafico_sexo(self, celula_freq):
-        total_meninas = 0
-        total_meninos = 0
+        def calcular_totais(inicio_semana, fim_semana):
+            total_meninas = 0
+            total_meninos = 0
+            turmas_contabilizadas = {dia: set() for dia in ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']}
+            for col in celula_freq.iter_rows(min_row=2, values_only=True):
+                data = col[0]
+                dia_semana = col[3]
+                turma = col[4]
+                meninos = col[5]
+                meninas = col[6]
+            
+                if isinstance(data, datetime):
+                    data = data.date()
+                elif isinstance(data, str):
+                    data = datetime.strptime(data, '%d/%m/%Y').date()
 
-        turmas_contabilizadas = {dia: set() for dia in ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta']}
+                if inicio_semana <= data <= fim_semana and turma not in turmas_contabilizadas[dia_semana]:
+                    turmas_contabilizadas[dia_semana].add(turma)
+
+                    if isinstance(meninos, int):
+                        total_meninos += meninos
+                    if isinstance(meninas, int):
+                        total_meninas += meninas
+            return total_meninos, total_meninas
+
         hoje = datetime.now().date()
         inicio_semana = hoje - timedelta(days=hoje.weekday())
         fim_semana = inicio_semana + timedelta(days=4)
+        total_meninos, total_meninas = calcular_totais(inicio_semana, fim_semana)
 
-        for col in celula_freq.iter_rows(min_row=2, values_only=True):
-            data = col[0]
-            dia_semana = col[3]
-            turma = col[4]
-            meninos = col[5]
-            meninas = col[6]
-            
-            if isinstance(data, datetime):
-                data = data.date()
-
-            if inicio_semana <= data <= fim_semana and turma not in turmas_contabilizadas[dia_semana]:
-                turmas_contabilizadas[dia_semana].add(turma)
-
-                if isinstance(meninos, int):
-                    total_meninas += meninas
-                if isinstance(meninas, int):
-                    total_meninos += meninos
+        if total_meninos == 0 and total_meninas == 0:
+            inicio_semana = inicio_semana - timedelta(days=7)
+            fim_semana = fim_semana - timedelta(days=7)
+            total_meninos, total_meninas = calcular_totais(inicio_semana, fim_semana)
 
         sexo = ['Meninos', 'Meninas']
         dados = [total_meninos/5, total_meninas/5]
@@ -440,20 +449,33 @@ class Relatorio(Screen):
         inicio_semana = hoje - timedelta(days=hoje.weekday()) 
         fim_semana = inicio_semana + timedelta(days=4)
 
-        for row in celula_freq.iter_rows(min_row=2, values_only=True):
-            data = row[0]
-            dia_semana = row[3]
-            turma = row[4]
-            meninos = row[5]
-            meninas = row[6]
+        def calcular_qtdePessoas(inicio_semana, fim_semana):
+            for row in celula_freq.iter_rows(min_row=2, values_only=True):
+                data = row[0]
+                dia_semana = row[3]
+                turma = row[4]
+                meninos = row[5]
+                meninas = row[6]
 
-            if isinstance(data, datetime):
-                data = data.date()
+                if isinstance(data, datetime):
+                    data = data.date()
+                elif isinstance(data, str):
+                    data = datetime.strptime(data, '%d/%m/%Y').date()
 
-            if inicio_semana <= data <= fim_semana and turma not in turmas_contabilizadas[dia_semana]:
-                turmas_contabilizadas[dia_semana].add(turma)
-                if dia_semana in qtde_pessoas:
-                    qtde_pessoas[dia_semana] += meninos + meninas
+
+                if inicio_semana <= data <= fim_semana and turma not in turmas_contabilizadas[dia_semana]:
+                    turmas_contabilizadas[dia_semana].add(turma)
+                    if dia_semana in qtde_pessoas:
+                        qtde_pessoas[dia_semana] += meninos + meninas
+        
+        calcular_qtdePessoas(inicio_semana, fim_semana)
+
+        if all(qtde == 0 for qtde in qtde_pessoas.values()):
+            inicio_semana = inicio_semana - timedelta(days=7)
+            fim_semana = fim_semana - timedelta(days=7)
+            qtde_pessoas = {dia: 0 for dia in dias_semana}
+            turmas_contabilizadas = {dia: set() for dia in dias_semana}
+            calcular_qtdePessoas(inicio_semana, fim_semana)
 
         max_dia = max(qtde_pessoas, key=qtde_pessoas.get)
         min_dia = min(qtde_pessoas, key=qtde_pessoas.get)

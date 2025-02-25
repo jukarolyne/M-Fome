@@ -76,6 +76,8 @@ class CadastroTurmas(Screen):
         self.ids.nomeTurma.text = ''
         self.ids.qtdeAlunos.text = ''
 
+        self.on_pre_enter()
+
     def remover_turma(self, nome_turma):
         try:
             tab_slvDataTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
@@ -155,7 +157,11 @@ class CadastroOrdem(Screen):
         try:
             arq_slvTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
             celulas = arq_slvTurma.active
-            turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
+            if celulas.max_row <= 1:
+                mostrar_popup('Erro ao Salvar!', 'Não é possível salvar a Ordem. \nArquivo de Cadastro de Turmas está \nvazio. Cadastre as turmas primeiro.')
+                return
+            else:
+                turmas_cadastradas = [celula.value for celula in celulas['A'][1:]]
                         
         except FileNotFoundError:
             mostrar_popup('Arquivo não encontrado!', 'Arquivo de Cadastro de Turmas não \nencontrado. Cadastre os dados \nfaltantes nas suas sessões primeiro.')
@@ -177,18 +183,7 @@ class CadastroOrdem(Screen):
                         size=(80, 40),
                         pos_hint={'center_x': 0.5}))
 
-    def salvar_Ordem(self):
-        try:
-            arq_slvTurma = openpyxl.load_workbook('cadastro_turmas.xlsx')
-            celula_turma = arq_slvTurma.active
-
-            if celula_turma.max_row <= 1:
-                mostrar_popup('Erro ao Salvar!', 'Não é possível salvar a Ordem. \nArquivo de Cadastro de Turmas está \nvazio. Cadastre as turmas primeiro.')
-                return
-            
-        except FileNotFoundError:
-            return mostrar_popup('Erro ao Salvar!', 'Não é possível salvar a Ordem. \nArquivo de Cadastro de Turmas está \nvazio. Cadastre as turmas primeiro.')
-        
+    def salvar_Ordem(self):        
         try:
             arq_slvDataOrdem = openpyxl.load_workbook('cadastro_OrdemTurmas.xlsx')
             celula = arq_slvDataOrdem.active
